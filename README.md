@@ -32,7 +32,7 @@ It is built from real renders of the page by `scripts/make_demo_video.py`.
 |---|---|
 | `src/fxarb/` | Python package: quote graph, Bellman–Ford, SPFA, brute-force checker, profit and size of a cycle, data sources, CLI |
 | `docs/theory.md` | The math: log transform, proof that n − 1 rounds suffice, correctness of the round-n check, why the predecessor walk lands on the cycle, complexity, SPFA, why not Dijkstra |
-| `web/` | Interactive demo, deployed to [GitHub Pages](https://emmanueladutwum123.github.io/fx-arbitrage-graph/). Step-through teaching mode, plus a live-snapshot mode on recorded Kraken and Binance.US order books. Static and offline: no network calls, works from `file://` |
+| `web/` | Interactive demo, deployed to [GitHub Pages](https://emmanueladutwum123.github.io/fx-arbitrage-graph/). Step-through teaching mode that auto-plays in a loop until you click or press a key, plus a live-snapshot mode on recorded Kraken and Binance.US order books. Static and offline: no network calls, works from `file://` |
 | `slides/` | 20-minute talk for Math 280 (reveal.js + KaTeX, bundled for offline use), [live](https://emmanueladutwum123.github.io/fx-arbitrage-graph/slides/), [PDF](slides/fx-arbitrage-slides.pdf) |
 | `results/` | Measured benchmarks and the analysis of a real 2-hour recording (1,440 snapshots) |
 | `cpp/` | Optional C++20 port (pybind11), cross-checked against the Python code |
