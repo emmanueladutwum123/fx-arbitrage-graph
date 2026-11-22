@@ -21,3 +21,7 @@ dist/
 # Raw recordings (large); curated results live in results/
 recordings/
 node_modules/
+
+# C++ build output
+cpp/build/
+*.so

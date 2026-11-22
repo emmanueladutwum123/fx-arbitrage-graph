@@ -26,6 +26,11 @@ from fxarb.sources import DEFAULT_FEES
 
 Algo = Callable[[int, WeightedEdges], SearchResult]
 
+try:  # optional C++20 extension (cpp/), see README
+    import fxarb_cpp
+except ImportError:
+    fxarb_cpp = None
+
 
 def machine() -> dict[str, str]:
     cpu = platform.processor() or platform.machine()
@@ -102,11 +107,31 @@ def main() -> int:
             r[f"{name}_rounds"] = res.rounds
             r[f"{name}_cycle"] = res.found
         assert r["bf_cycle"] == r["spfa_cycle"] == r["bfpc_cycle"], f"algorithms disagree on {label}"
+        if fxarb_cpp is not None:
+            cg = fxarb_cpp.Graph(g.n, edges)  # one-time conversion, not timed
+            for name, call in (
+                ("cpp_bf", lambda: cg.bellman_ford()),
+                ("cpp_bfpc", lambda: cg.bellman_ford(pred_check=True)),
+                ("cpp_spfa", lambda: cg.spfa()),
+            ):
+                out = call()
+                ts = []
+                for _ in range(max(repeat, 5)):
+                    t0 = time.perf_counter()
+                    out = call()
+                    ts.append(time.perf_counter() - t0)
+                r[f"{name}_ms"] = statistics.median(ts) * 1e3
+                assert (out[0] is not None) == r["bf_cycle"], f"C++ disagrees on {label}"
         rows.append(r)
         print(
             f"{label:<44} V={g.n:>5} E={len(edges):>6}  BF {r['bf_ms']:>9.2f} ms"
             f" ({r['bf_rounds']} rounds)  BF+check {r['bfpc_ms']:>8.2f} ms ({r['bfpc_rounds']})"
             f"  SPFA {r['spfa_ms']:>8.2f} ms  cycle={r['bf_cycle']}"
+            + (
+                f"  | C++ {r['cpp_bf_ms']:.3f} / {r['cpp_bfpc_ms']:.3f} / {r['cpp_spfa_ms']:.3f} ms"
+                if "cpp_bf_ms" in r
+                else ""
+            )
         )
 
     snap = load_json_snapshot(Path(a.snapshot))
@@ -162,6 +187,24 @@ def main() -> int:
             f"{r['bf_scans']:,} | {r['spfa_scans']:,} | "
             f"{'yes' if r['bf_cycle'] else 'no'} |"
         )
+    if fxarb_cpp is not None:
+        lines += [
+            "",
+            "## C++20 extension (pybind11, `-O3`) vs pure Python",
+            "",
+            "Same algorithms, same edge order, identical results (tests/test_cpp.py). Times exclude "
+            "the one-time conversion of the edge list into the C++ graph.",
+            "",
+            "| case | V | E | BF py ms | BF C++ ms | speedup | BF+check py | BF+check C++ "
+            "| SPFA py | SPFA C++ | speedup |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        ]
+        for r in rows:
+            lines.append(
+                f"| {r['case']} | {r['V']} | {r['E']} | {r['bf_ms']:.2f} | {r['cpp_bf_ms']:.3f} | "
+                f"{r['bf_ms'] / r['cpp_bf_ms']:.0f}× | {r['bfpc_ms']:.2f} | {r['cpp_bfpc_ms']:.3f} | "
+                f"{r['spfa_ms']:.2f} | {r['cpp_spfa_ms']:.3f} | {r['spfa_ms'] / r['cpp_spfa_ms']:.0f}× |"
+            )
     (out / "benchmarks.md").write_text("\n".join(lines) + "\n")
     print(f"\nWrote {out / 'benchmarks.md'}")
     return 0
