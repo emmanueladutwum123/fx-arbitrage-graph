@@ -19,7 +19,7 @@ question into graph theory and answers it on real exchange data.
 
 Every step is proved in [`docs/theory.md`](docs/theory.md).
 
-A 70-second captioned walkthrough of the demo (fair market, mispriced quote, real snapshot) is at
+A 75-second captioned walkthrough of the demo (fair market, mispriced quote, real snapshot) is at
 [`docs/video/demo-walkthrough.mp4`](docs/video/demo-walkthrough.mp4), also served at
 [/video/demo-walkthrough.mp4](https://emmanueladutwum123.github.io/fx-arbitrage-graph/video/demo-walkthrough.mp4).
 It is built from real renders of the page by `scripts/make_demo_video.py`.

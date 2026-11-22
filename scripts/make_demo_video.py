@@ -25,20 +25,64 @@ FPS = 30
 
 # (query string, seconds, caption)
 SCENES: list[tuple[str, float, str]] = [
-    ("scen=fair&step=0&focus=graph", 5, "Five currencies, 20 directed quotes. Every distance starts at 0 (virtual source)."),
-    ("scen=fair&step=1&focus=graph", 4, "Fair market, round 1: relax every edge once. Several distances drop."),
-    ("scen=fair&step=2&focus=graph", 5, "Round 2 changes nothing, so the distances are final: no negative cycle, no arbitrage."),
-    ("scen=bad&step=0&focus=graph", 4, "Now mispriced: EUR→JPY quoted 0.8% too high (highlighted in the matrix below)."),
+    (
+        "scen=fair&step=0&focus=graph",
+        5,
+        "Five currencies, 20 directed quotes. Every distance starts at 0 (virtual source).",
+    ),
+    (
+        "scen=fair&step=1&focus=graph",
+        4,
+        "Fair market, round 1: relax every edge once. Several distances drop.",
+    ),
+    (
+        "scen=fair&step=2&focus=graph",
+        5,
+        "Round 2 changes nothing, so the distances are final: no negative cycle, no arbitrage.",
+    ),
+    (
+        "scen=bad&step=0&focus=graph",
+        4,
+        "Now mispriced: EUR→JPY quoted 0.8% too high (highlighted in the matrix below).",
+    ),
     ("scen=bad&step=1&focus=graph", 3, "Round 1: distances drop."),
     ("scen=bad&step=2&focus=graph", 3, "Round 2: still dropping."),
     ("scen=bad&step=3&focus=graph", 3, "Round 3: still dropping."),
-    ("scen=bad&step=4&focus=graph", 4, "Round 4 = n−1: a shortest path has at most 4 edges, so this should be the end..."),
-    ("scen=bad&step=5&focus=graph", 6, "Round 5 (the check) still improves JPY: a negative cycle exists. Predecessors give GHS → EUR → JPY → GHS."),
-    ("scen=bad&step=5&focus=trade", 7, "The trade: rates multiply to 1.0065 > 1, weights sum to −0.0065 < 0. Same fact, two ways."),
-    ("mode=live&focus=live", 7, "Live snapshot: real Kraken + Binance.US best bid/ask, ~700 assets, ~3,000 edges, taker fees."),
-    ("mode=live&fees=zero&focus=live", 7, "Same snapshot with zero fees: 8 small cycles appear; most are worth under a cent, the largest about $1.77."),
-    ("mode=live&fees=zero&cyc=1&focus=live", 5, "Each cycle shows its legs, the tightest leg, and the fee per leg that would erase it."),
-    ("mode=live&focus=live", 6, "Back to real taker fees: Bellman–Ford stops after a few rounds. No arbitrage. Fees close the gaps."),
+    (
+        "scen=bad&step=4&focus=graph",
+        4,
+        "Round 4 = n−1: a shortest path has at most 4 edges, so this should be the end...",
+    ),
+    (
+        "scen=bad&step=5&focus=graph",
+        6,
+        "Round 5 (the check) still improves JPY: a negative cycle exists. Predecessors give GHS → EUR → JPY → GHS.",
+    ),
+    (
+        "scen=bad&step=5&focus=trade",
+        7,
+        "The trade: rates multiply to 1.0065 > 1, weights sum to −0.0065 < 0. Same fact, two ways.",
+    ),
+    (
+        "mode=live&focus=live",
+        7,
+        "Live snapshot: real Kraken + Binance.US best bid/ask, ~700 assets, ~3,000 edges, taker fees.",
+    ),
+    (
+        "mode=live&fees=zero&focus=live",
+        7,
+        "Same snapshot with zero fees: 8 small cycles appear; most are worth under a cent, the largest about $1.77.",
+    ),
+    (
+        "mode=live&fees=zero&cyc=1&focus=live",
+        5,
+        "Each cycle shows its legs, the tightest leg, and the fee per leg that would erase it.",
+    ),
+    (
+        "mode=live&focus=live",
+        6,
+        "Back to real taker fees: Bellman–Ford stops after a few rounds. No arbitrage. Fees close the gaps.",
+    ),
 ]
 
 
@@ -74,8 +118,11 @@ def caption(img: Path, text: str, k: int, n: int) -> Image.Image:
     frame.paste(page, (0, 0))
     d = ImageDraw.Draw(frame)
     font = None
-    for f in ("/System/Library/Fonts/SFNS.ttf", "/System/Library/Fonts/Helvetica.ttc",
-              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"):
+    for f in (
+        "/System/Library/Fonts/SFNS.ttf",
+        "/System/Library/Fonts/Helvetica.ttc",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    ):
         try:
             font = ImageFont.truetype(f, 36)
             small = ImageFont.truetype(f, 22)
@@ -85,8 +132,9 @@ def caption(img: Path, text: str, k: int, n: int) -> Image.Image:
     if font is None:
         font = small = ImageFont.load_default()
     d.text((40, H - BAR + 22), text, fill=(240, 244, 248), font=font)
-    d.text((W - 40, H - BAR + 72), f"fx-arbitrage-graph · {k}/{n}", fill=(150, 170, 190),
-           font=small, anchor="ra")
+    d.text(
+        (W - 40, H - BAR + 72), f"fx-arbitrage-graph · {k}/{n}", fill=(150, 170, 190), font=small, anchor="ra"
+    )
     return frame
 
 
