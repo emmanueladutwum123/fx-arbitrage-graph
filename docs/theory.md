@@ -165,6 +165,11 @@ has fewer than $n$ vertices and $x_n$ is on the cycle. By Lemma 4 the cycle is n
 and by Theorem 1 it is an arbitrage. From $x_n$ we follow pointers until we return to
 $x_n$, which lists the cycle backwards; reversing it gives the trading order. $\blacksquare$
 
+The argument works at any moment *after* $v$'s round-$n$ relaxation, not only immediately
+after it: $d(v)$ can only decrease further, so $d(v) < d^{(n-1)}(v)$ still holds, and Lemma 4a
+holds at all times. The Python code relies on this: it finishes round $n$ and then walks back
+from the last vertex that changed. (The step-through demo in `web/index.html` walks back immediately; both are covered.)
+
 This is exactly `cycle_from_pred` in `src/fxarb/bellman_ford.py`. Lemma 4 also justifies the
 optional early check (`pred_check=True`, and SPFA's periodic check): if the pointers form a
 cycle at *any* time, that cycle is an arbitrage, so we may stop at once.
