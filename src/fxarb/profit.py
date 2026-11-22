@@ -107,9 +107,7 @@ def canonical_key(assets: Sequence[str]) -> str:
     return ">".join(body)
 
 
-def find_negative_cycle(
-    graph: QuoteGraph, method: str = "spfa", eps: float = DEFAULT_EPS
-) -> SearchResult:
+def find_negative_cycle(graph: QuoteGraph, method: str = "spfa", eps: float = DEFAULT_EPS) -> SearchResult:
     edges = graph.weighted_edges()
     if method == "bf":
         return bellman_ford(graph.n, edges, eps)

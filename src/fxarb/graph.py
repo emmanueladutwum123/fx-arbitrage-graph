@@ -48,9 +48,7 @@ class Quote:
         _check_positive_finite("bid", self.bid)
         _check_positive_finite("ask", self.ask)
         if self.bid > self.ask:
-            raise ValueError(
-                f"crossed book for {self.base}/{self.quote}: bid {self.bid} > ask {self.ask}"
-            )
+            raise ValueError(f"crossed book for {self.base}/{self.quote}: bid {self.bid} > ask {self.ask}")
         for name, size in (("bid_size", self.bid_size), ("ask_size", self.ask_size)):
             if not (size > 0):  # also rejects NaN; inf allowed (unknown depth)
                 raise ValueError(f"{name} must be positive, got {size!r}")

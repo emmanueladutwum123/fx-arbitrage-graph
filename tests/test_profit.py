@@ -59,9 +59,7 @@ def test_rotation_and_canonical_key() -> None:
     rot = rotate_to_preferred(cyc, g)
     assert [g.assets[i] for i in rot] == ["USD", "BTC", "ETH", "USD"]
     assert evaluate_cycle(g, rot).product == pytest.approx(evaluate_cycle(g, cyc).product)
-    assert canonical_key(["BTC", "ETH", "USD", "BTC"]) == canonical_key(
-        ["USD", "BTC", "ETH", "USD"]
-    )
+    assert canonical_key(["BTC", "ETH", "USD", "BTC"]) == canonical_key(["USD", "BTC", "ETH", "USD"])
     assert canonical_key(["A", "B", "C", "A"]) != canonical_key(["A", "C", "B", "A"])
 
 
