@@ -171,3 +171,25 @@ def test_cli_scan_from_json(tmp_path: Path, capsys: pytest.CaptureFixture[str]) 
 def test_live_kraken_reachable() -> None:
     qs = kraken.fetch(0.008)
     assert len(qs) > 100
+
+
+def test_persistence_does_not_bridge_recording_gaps() -> None:
+    from fxarb.recording import Snapshot
+
+    def snap(ts: float, bid_y: float) -> Snapshot:
+        return Snapshot(
+            ts,
+            [
+                Quote("BTC", "USD", 100.0, 100.5, 1.0, 1.0, venue="x"),
+                Quote("BTC", "USD", bid_y, bid_y + 0.5, 1.0, 1.0, venue="y"),
+            ],
+        )
+
+    # cycle present at t=0,5 then the recorder stalls for 600s, cycle present again at 605, 610
+    snaps = [snap(0, 101), snap(5, 101), snap(605, 101), snap(610, 101), snap(615, 100.2)]
+    res = analyze(snaps, {"free": {"x": 0.0, "y": 0.0}})
+    s = res["scenarios"]["free"]
+    assert s["episodes"] == 2  # not one 610-second episode
+    assert s["episode_snapshots"]["max"] == 2
+    assert res["recording_gaps"][0]["seconds"] == 600
+    assert res["covered_s"] == 15

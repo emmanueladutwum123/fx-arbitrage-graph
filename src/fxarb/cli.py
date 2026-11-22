@@ -170,6 +170,13 @@ def print_analysis(res: dict) -> None:  # type: ignore[type-arg]
         f"(median interval {res['median_interval_s']}s), venues {res['venues']}, "
         f"~{res['assets_median']} assets / {res['pairs_median']} pairs per snapshot"
     )
+    gaps = res.get("recording_gaps") or []
+    if gaps:
+        print(
+            "recording gaps (not counted as continuous): "
+            + ", ".join(f"{g['from'][11:19]}-{g['to'][11:19]} ({g['seconds']}s)" for g in gaps)
+            + f"; continuous coverage {res['covered_s'] / 60:.1f} min"
+        )
     for name, s in res["scenarios"].items():
         fees = ", ".join(f"{v} {f:.2%}" for v, f in s["fees"].items())
         print(f"\n== {name} ({fees})")

@@ -103,6 +103,8 @@ def record(
                 taken += 1
                 log(f"[{time.strftime('%H:%M:%S')}] snapshot {taken}/{count}: {len(quotes)} quotes")
             next_t += interval
+            if next_t < time.monotonic():  # fell behind (stall or sleep): skip, don't burst
+                next_t = time.monotonic() + interval
             time.sleep(max(0.0, next_t - time.monotonic()))
     except KeyboardInterrupt:
         log("interrupted; keeping what was recorded")
@@ -260,11 +262,25 @@ def analyze(
         raise ValueError("recording is empty")
     ts = [s.ts for s in snapshots]
     gaps = [b - a for a, b in itertools.pairwise(ts)]
+    step = statistics.median(gaps) if gaps else 0.0
+    # A pause in recording (network outage, machine asleep) must not make two snapshots on
+    # either side of it look consecutive, or cycle lifetimes would be overstated.
+    contiguous = [True] + [g <= 2 * step for g in gaps]
+    breaks = [(a, b) for (a, b), ok in zip(itertools.pairwise(ts), contiguous[1:], strict=True) if not ok]
     out: dict[str, Any] = {
         "snapshots": len(snapshots),
         "start": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts[0])),
         "end": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts[-1])),
-        "median_interval_s": statistics.median(gaps) if gaps else None,
+        "median_interval_s": step if gaps else None,
+        "recording_gaps": [
+            {
+                "from": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(a)),
+                "to": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(b)),
+                "seconds": round(b - a),
+            }
+            for a, b in breaks
+        ],
+        "covered_s": round(sum(g for g, ok in zip(gaps, contiguous[1:], strict=True) if ok)),
         "venues": sorted({q.venue for s in snapshots for q in s.quotes}),
         "assets_median": statistics.median(
             len({a for q in s.quotes for a in (q.base, q.quote)}) for s in snapshots
@@ -285,7 +301,7 @@ def analyze(
             per_snap.append(find_cycles(g, limit=limit, method=method))
             if progress and (i + 1) % 25 == 0:
                 progress(f"  {name}: {i + 1}/{len(snapshots)} snapshots")
-        summary = _summarize(fees, per_snap, ts, usd, limit)
+        summary = _summarize(fees, per_snap, ts, usd, limit, contiguous)
         summary["symbols_split_median"] = statistics.median(split_counts)
         out["scenarios"][name] = summary
     return out
@@ -297,6 +313,7 @@ def _summarize(
     ts: list[float],
     usd: list[dict[str, float]],
     limit: int,
+    contiguous: Sequence[bool] | None = None,
 ) -> dict[str, Any]:
     # Track each distinct cycle across consecutive snapshots to measure persistence.
     runs: dict[str, list[list[int]]] = defaultdict(list)
@@ -309,7 +326,7 @@ def _summarize(
         for r in reps:
             key = canonical_key(r.assets)
             rs = runs[key]
-            if rs and rs[-1][-1] == i - 1:
+            if rs and rs[-1][-1] == i - 1 and (contiguous is None or contiguous[i]):
                 rs[-1].append(i)
             else:
                 rs.append([i])
