@@ -1,0 +1,23 @@
+# AI-tool / editor config (never committed)
+.claude/
+.cursor/
+.vscode/
+.idea/
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+build/
+dist/
+
+# Raw recordings (large); curated results live in results/
+recordings/
+node_modules/

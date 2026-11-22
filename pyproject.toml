@@ -1,0 +1,62 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fxarb"
+version = "0.1.0"
+description = "Detect FX and crypto arbitrage as negative cycles with Bellman-Ford"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+authors = [{ name = "Emmanuel Adutwum" }]
+keywords = ["bellman-ford", "graph", "arbitrage", "negative-cycle", "spfa"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = []
+
+[project.optional-dependencies]
+parquet = ["pyarrow>=15"]
+dev = [
+  "pytest>=8",
+  "hypothesis>=6.100",
+  "ruff>=0.6",
+  "mypy>=1.10",
+  "pre-commit>=3.7",
+]
+
+[project.scripts]
+fxarb = "fxarb.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/emmanueladutwum123/fx-arbitrage-graph"
+Demo = "https://emmanueladutwum123.github.io/fx-arbitrage-graph/"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fxarb"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF001", "RUF002", "RUF003"]  # allow math symbols (−, →, ·) in strings/docs
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/fxarb"]
+
+[[tool.mypy.overrides]]
+module = ["pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = ["network: hits a live public API (deselect with -m 'not network')"]
