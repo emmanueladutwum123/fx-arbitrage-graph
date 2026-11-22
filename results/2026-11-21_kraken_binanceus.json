@@ -1,0 +1,1439 @@
+{
+  "snapshots": 1440,
+  "start": "2026-11-22T02:10:52Z",
+  "end": "2026-11-22T04:56:15Z",
+  "median_interval_s": 5.0,
+  "recording_gaps": [
+    {
+      "from": "2026-11-22T02:44:47Z",
+      "to": "2026-11-22T02:54:22Z",
+      "seconds": 575
+    },
+    {
+      "from": "2026-11-22T02:54:22Z",
+      "to": "2026-11-22T03:27:08Z",
+      "seconds": 1966
+    },
+    {
+      "from": "2026-11-22T03:27:08Z",
+      "to": "2026-11-22T03:30:25Z",
+      "seconds": 197
+    },
+    {
+      "from": "2026-11-22T03:37:55Z",
+      "to": "2026-11-22T03:38:13Z",
+      "seconds": 18
+    },
+    {
+      "from": "2026-11-22T03:38:13Z",
+      "to": "2026-11-22T03:38:23Z",
+      "seconds": 10
+    },
+    {
+      "from": "2026-11-22T03:38:36Z",
+      "to": "2026-11-22T03:38:51Z",
+      "seconds": 15
+    },
+    {
+      "from": "2026-11-22T03:38:51Z",
+      "to": "2026-11-22T03:39:01Z",
+      "seconds": 10
+    },
+    {
+      "from": "2026-11-22T03:58:45Z",
+      "to": "2026-11-22T03:58:59Z",
+      "seconds": 14
+    }
+  ],
+  "covered_s": 7117,
+  "venues": [
+    "binanceus",
+    "kraken"
+  ],
+  "assets_median": 681.0,
+  "pairs_median": 1618.0,
+  "scenarios": {
+    "binanceus | no fees": {
+      "fees": {
+        "binanceus": 0.0
+      },
+      "snapshots_with_cycle": 1433,
+      "fraction_with_cycle": 0.9951388888888889,
+      "cycle_observations": 3651,
+      "distinct_cycles": 92,
+      "capped_at_limit": 0,
+      "cycle_length_counts": {
+        "3": 3233,
+        "4": 415,
+        "5": 3
+      },
+      "net_return": {
+        "median": 3.093691978084401e-05,
+        "p90": 0.0002548791214023183,
+        "max": 0.0011821351294925009
+      },
+      "max_size_usd": {
+        "median": 30.270310500000004,
+        "p90": 4107.900911753599,
+        "max": 10099.1528
+      },
+      "max_profit_usd": {
+        "median": 0.002474572799998017,
+        "p90": 0.07395469560030943,
+        "max": 0.563137629514986
+      },
+      "episodes": 1136,
+      "episode_snapshots": {
+        "median": 1,
+        "max": 398
+      },
+      "episode_span_s": {
+        "median": 0.0,
+        "max": 1985.0
+      },
+      "top_by_profit": [
+        {
+          "cycle": "USD \u2192 USDT \u2192 USDC \u2192 USD",
+          "net_return": 6.508868710608517e-05,
+          "max_size_usd": 7859.409841332,
+          "max_profit_usd": 0.5115586680009451,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:USDC/USDT:buy",
+            "binanceus:USDC/USD:sell"
+          ],
+          "first_seen": "02:44:12",
+          "episodes": 11,
+          "max_consecutive_snapshots": 398
+        },
+        {
+          "cycle": "USDT \u2192 USDC \u2192 BTC \u2192 USDT",
+          "net_return": 0.00012017909868045074,
+          "max_size_usd": 1070.5175913051555,
+          "max_profit_usd": 0.1286538392446207,
+          "legs": [
+            "binanceus:USDC/USDT:buy",
+            "binanceus:BTC/USDC:buy",
+            "binanceus:BTC/USDT:sell"
+          ],
+          "first_seen": "03:35:45",
+          "episodes": 25,
+          "max_consecutive_snapshots": 4
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 SOL \u2192 USDT \u2192 USD",
+          "net_return": 0.00016764189747386915,
+          "max_size_usd": 207.85809827399999,
+          "max_profit_usd": 0.03484572599996332,
+          "legs": [
+            "binanceus:BTC/USD:buy",
+            "binanceus:SOL/BTC:buy",
+            "binanceus:SOL/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "04:24:00",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 USDC \u2192 SOL \u2192 USD",
+          "net_return": 0.0001426330052776148,
+          "max_size_usd": 199.95371999999998,
+          "max_profit_usd": 0.02852000000003871,
+          "legs": [
+            "binanceus:USDC/USD:buy",
+            "binanceus:SOL/USDC:buy",
+            "binanceus:SOL/USD:sell"
+          ],
+          "first_seen": "02:16:47",
+          "episodes": 1,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 USDT \u2192 USDC \u2192 USD",
+          "net_return": 0.0001037214095356287,
+          "max_size_usd": 90.4684716,
+          "max_profit_usd": 0.009383517392885994,
+          "legs": [
+            "binanceus:BTC/USD:buy",
+            "binanceus:BTC/USDT:sell",
+            "binanceus:USDC/USDT:buy",
+            "binanceus:USDC/USD:sell"
+          ],
+          "first_seen": "04:29:05",
+          "episodes": 88,
+          "max_consecutive_snapshots": 10
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 SOL \u2192 USD",
+          "net_return": 0.00034591736668931894,
+          "max_size_usd": 23.972967334268,
+          "max_profit_usd": 0.008292665731999048,
+          "legs": [
+            "binanceus:BTC/USD:buy",
+            "binanceus:SOL/BTC:buy",
+            "binanceus:SOL/USD:sell"
+          ],
+          "first_seen": "04:24:00",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USDT \u2192 BTC \u2192 USDC \u2192 USDT",
+          "net_return": 0.00013448422725437226,
+          "max_size_usd": 46.675152606778504,
+          "max_profit_usd": 0.006277071830302506,
+          "legs": [
+            "binanceus:BTC/USDT:buy",
+            "binanceus:BTC/USDC:sell",
+            "binanceus:USDC/USDT:sell"
+          ],
+          "first_seen": "03:51:05",
+          "episodes": 24,
+          "max_consecutive_snapshots": 5
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 BTC \u2192 USDC \u2192 USD",
+          "net_return": 0.0001294878592406068,
+          "max_size_usd": 46.189470465216,
+          "max_profit_usd": 0.005980975649998054,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:BTC/USDT:buy",
+            "binanceus:BTC/USDC:sell",
+            "binanceus:USDC/USD:sell"
+          ],
+          "first_seen": "04:31:15",
+          "episodes": 19,
+          "max_consecutive_snapshots": 5
+        },
+        {
+          "cycle": "USD \u2192 XLM \u2192 USDT \u2192 USD",
+          "net_return": 0.0004641237600380155,
+          "max_size_usd": 12.066899999999999,
+          "max_profit_usd": 0.005600535000002728,
+          "legs": [
+            "binanceus:XLM/USD:buy",
+            "binanceus:XLM/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "04:34:10",
+          "episodes": 6,
+          "max_consecutive_snapshots": 3
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 FET \u2192 USD",
+          "net_return": 0.00017642701269027228,
+          "max_size_usd": 28.751277497999997,
+          "max_profit_usd": 0.005072502000001185,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:FET/USDT:buy",
+            "binanceus:FET/USD:sell"
+          ],
+          "first_seen": "04:20:45",
+          "episodes": 1,
+          "max_consecutive_snapshots": 8
+        }
+      ],
+      "symbols_split_median": 0.0
+    },
+    "binanceus | taker fees": {
+      "fees": {
+        "binanceus": 0.0002
+      },
+      "snapshots_with_cycle": 95,
+      "fraction_with_cycle": 0.06597222222222222,
+      "cycle_observations": 99,
+      "distinct_cycles": 8,
+      "capped_at_limit": 0,
+      "cycle_length_counts": {
+        "3": 96,
+        "4": 3
+      },
+      "net_return": {
+        "median": 0.0003324156694242131,
+        "p90": 0.000421609468768791,
+        "max": 0.0005790059786987545
+      },
+      "max_size_usd": {
+        "median": 1.5270597868323414,
+        "p90": 3.3388020138934773,
+        "max": 4.667064893674874
+      },
+      "max_profit_usd": {
+        "median": 0.0003791941848853998,
+        "p90": 0.0013476811211362554,
+        "max": 0.0014995735280805748
+      },
+      "episodes": 20,
+      "episode_snapshots": {
+        "median": 3,
+        "max": 17
+      },
+      "episode_span_s": {
+        "median": 10.0,
+        "max": 80.0
+      },
+      "top_by_profit": [
+        {
+          "cycle": "USD \u2192 BCH \u2192 USDT \u2192 USD",
+          "net_return": 0.0004044661227899926,
+          "max_size_usd": 3.3320000000000003,
+          "max_profit_usd": 0.0013476811211362554,
+          "legs": [
+            "binanceus:BCH/USD:buy",
+            "binanceus:BCH/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "04:28:25",
+          "episodes": 4,
+          "max_consecutive_snapshots": 9
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 ZEC \u2192 USD",
+          "net_return": 0.00041011760925901974,
+          "max_size_usd": 3.1064243366776982,
+          "max_profit_usd": 0.0012739993223022938,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:ZEC/USDT:buy",
+            "binanceus:ZEC/USD:sell"
+          ],
+          "first_seen": "02:16:32",
+          "episodes": 10,
+          "max_consecutive_snapshots": 4
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 ADA \u2192 USD",
+          "net_return": 0.0003324156694242131,
+          "max_size_usd": 3.3388020138934773,
+          "max_profit_usd": 0.001109870106523311,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:ADA/USDT:buy",
+            "binanceus:ADA/USD:sell"
+          ],
+          "first_seen": "03:35:45",
+          "episodes": 1,
+          "max_consecutive_snapshots": 7
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 USDT \u2192 ADA \u2192 USD",
+          "net_return": 0.0004127202690165088,
+          "max_size_usd": 1.7721141,
+          "max_profit_usd": 0.0007313874080799484,
+          "legs": [
+            "binanceus:BTC/USD:buy",
+            "binanceus:BTC/USDT:sell",
+            "binanceus:ADA/USDT:buy",
+            "binanceus:ADA/USD:sell"
+          ],
+          "first_seen": "03:35:50",
+          "episodes": 1,
+          "max_consecutive_snapshots": 3
+        },
+        {
+          "cycle": "USD \u2192 LPT \u2192 USDT \u2192 USD",
+          "net_return": 0.000421609468768791,
+          "max_size_usd": 0.9442999999999999,
+          "max_profit_usd": 0.0003981258213583693,
+          "legs": [
+            "binanceus:LPT/USD:buy",
+            "binanceus:LPT/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "02:43:02",
+          "episodes": 1,
+          "max_consecutive_snapshots": 17
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 NEAR \u2192 USD",
+          "net_return": 4.8781818093202034e-05,
+          "max_size_usd": 1.4341431398902307,
+          "max_profit_usd": 6.996010976973883e-05,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:NEAR/USDT:buy",
+            "binanceus:NEAR/USD:sell"
+          ],
+          "first_seen": "04:05:10",
+          "episodes": 1,
+          "max_consecutive_snapshots": 11
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 ATOM \u2192 USD",
+          "net_return": 0.0005790059786987545,
+          "max_size_usd": 0.057854921654464916,
+          "max_profit_usd": 3.349834553508322e-05,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:ATOM/USDT:buy",
+            "binanceus:ATOM/USD:sell"
+          ],
+          "first_seen": "04:53:05",
+          "episodes": 1,
+          "max_consecutive_snapshots": 4
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 VET \u2192 USD",
+          "net_return": 7.539213731067029e-05,
+          "max_size_usd": 0.19471940268053606,
+          "max_profit_usd": 1.4680311943942675e-05,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:VET/USDT:buy",
+            "binanceus:VET/USD:sell"
+          ],
+          "first_seen": "03:50:45",
+          "episodes": 1,
+          "max_consecutive_snapshots": 17
+        }
+      ],
+      "symbols_split_median": 0.0
+    },
+    "binanceus | fee 0.001": {
+      "fees": {
+        "binanceus": 0.001
+      },
+      "snapshots_with_cycle": 0,
+      "fraction_with_cycle": 0.0,
+      "cycle_observations": 0,
+      "distinct_cycles": 0,
+      "capped_at_limit": 0,
+      "cycle_length_counts": {},
+      "net_return": {
+        "median": NaN,
+        "p90": NaN,
+        "max": NaN
+      },
+      "max_size_usd": {
+        "median": NaN,
+        "p90": NaN,
+        "max": NaN
+      },
+      "max_profit_usd": {
+        "median": NaN,
+        "p90": NaN,
+        "max": NaN
+      },
+      "episodes": 0,
+      "episode_snapshots": {
+        "median": NaN,
+        "max": NaN
+      },
+      "episode_span_s": {
+        "median": NaN,
+        "max": NaN
+      },
+      "top_by_profit": [],
+      "symbols_split_median": 0.0
+    },
+    "kraken | no fees": {
+      "fees": {
+        "kraken": 0.0
+      },
+      "snapshots_with_cycle": 1440,
+      "fraction_with_cycle": 1.0,
+      "cycle_observations": 28506,
+      "distinct_cycles": 5108,
+      "capped_at_limit": 1338,
+      "cycle_length_counts": {
+        "3": 11390,
+        "4": 10483,
+        "5": 4038,
+        "6": 1632,
+        "7": 643,
+        "8": 241,
+        "9": 59,
+        "10": 16,
+        "11": 4
+      },
+      "net_return": {
+        "median": 0.0004486775516778785,
+        "p90": 0.00190006394445974,
+        "max": 0.020645444420063663
+      },
+      "max_size_usd": {
+        "median": 198.03573903483215,
+        "p90": 3542.994981,
+        "max": 59951.725729212005
+      },
+      "max_profit_usd": {
+        "median": 0.04351048199069993,
+        "p90": 2.22501707899611,
+        "max": 61.04382482616411
+      },
+      "episodes": 19645,
+      "episode_snapshots": {
+        "median": 1,
+        "max": 72
+      },
+      "episode_span_s": {
+        "median": 0.0,
+        "max": 354.99899983406067
+      },
+      "top_by_profit": [
+        {
+          "cycle": "EUR \u2192 BTC \u2192 GBP \u2192 USDC \u2192 USDT \u2192 EUR",
+          "net_return": 0.0010792746037318057,
+          "max_size_usd": 56560.049328588844,
+          "max_profit_usd": 61.04382482616411,
+          "legs": [
+            "kraken:BTC/EUR:buy",
+            "kraken:BTC/GBP:sell",
+            "kraken:USDC/GBP:buy",
+            "kraken:USDC/USDT:sell",
+            "kraken:USDT/EUR:sell"
+          ],
+          "first_seen": "02:32:52",
+          "episodes": 6,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USDT \u2192 BTC \u2192 GBP \u2192 USDC \u2192 USDT",
+          "net_return": 0.0009967957429024565,
+          "max_size_usd": 59507.287194000004,
+          "max_profit_usd": 59.316610546653074,
+          "legs": [
+            "kraken:BTC/USDT:buy",
+            "kraken:BTC/GBP:sell",
+            "kraken:USDC/GBP:buy",
+            "kraken:USDC/USDT:sell"
+          ],
+          "first_seen": "02:32:52",
+          "episodes": 11,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USDC \u2192 BTC \u2192 GBP \u2192 USDC",
+          "net_return": 0.0009878024223037851,
+          "max_size_usd": 59508.972315,
+          "max_profit_usd": 58.78310700156589,
+          "legs": [
+            "kraken:BTC/USDC:buy",
+            "kraken:BTC/GBP:sell",
+            "kraken:USDC/GBP:buy"
+          ],
+          "first_seen": "02:32:52",
+          "episodes": 93,
+          "max_consecutive_snapshots": 6
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 WBTC \u2192 USD",
+          "net_return": 0.0008568615548534275,
+          "max_size_usd": 59443.46517999999,
+          "max_profit_usd": 50.93482000001037,
+          "legs": [
+            "kraken:BTC/USD:buy",
+            "kraken:WBTC/BTC:buy",
+            "kraken:WBTC/USD:sell"
+          ],
+          "first_seen": "04:20:30",
+          "episodes": 15,
+          "max_consecutive_snapshots": 6
+        },
+        {
+          "cycle": "EUR \u2192 BTC \u2192 WBTC \u2192 EUR",
+          "net_return": 0.0006298257750885217,
+          "max_size_usd": 59103.58194999999,
+          "max_profit_usd": 37.2249593121667,
+          "legs": [
+            "kraken:BTC/EUR:buy",
+            "kraken:WBTC/BTC:buy",
+            "kraken:WBTC/EUR:sell"
+          ],
+          "first_seen": "04:24:05",
+          "episodes": 2,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USD \u2192 USDC \u2192 BTC \u2192 WBTC \u2192 USD",
+          "net_return": 0.0006086896108445927,
+          "max_size_usd": 59421.977208000004,
+          "max_profit_usd": 36.16954018235378,
+          "legs": [
+            "kraken:USDC/USD:buy",
+            "kraken:BTC/USDC:buy",
+            "kraken:WBTC/BTC:buy",
+            "kraken:WBTC/USD:sell"
+          ],
+          "first_seen": "04:04:35",
+          "episodes": 7,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 GBP \u2192 USDC \u2192 USD",
+          "net_return": 0.000609002925255453,
+          "max_size_usd": 59329.1,
+          "max_profit_usd": 36.1315954527733,
+          "legs": [
+            "kraken:BTC/USD:buy",
+            "kraken:BTC/GBP:sell",
+            "kraken:USDC/GBP:buy",
+            "kraken:USDC/USD:sell"
+          ],
+          "first_seen": "02:39:17",
+          "episodes": 6,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 USDG \u2192 USDT \u2192 BTC \u2192 WBTC \u2192 USD",
+          "net_return": 0.0005238248889349872,
+          "max_size_usd": 59303.23288764717,
+          "max_profit_usd": 31.064509380857462,
+          "legs": [
+            "kraken:USDG/USD:buy",
+            "kraken:USDG/USDT:sell",
+            "kraken:BTC/USDT:buy",
+            "kraken:WBTC/BTC:buy",
+            "kraken:WBTC/USD:sell"
+          ],
+          "first_seen": "04:15:05",
+          "episodes": 4,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 GBP \u2192 USDC \u2192 USDG \u2192 USD",
+          "net_return": 0.0005086437683077261,
+          "max_size_usd": 59411.7,
+          "max_profit_usd": 30.219390969568128,
+          "legs": [
+            "kraken:BTC/USD:buy",
+            "kraken:BTC/GBP:sell",
+            "kraken:USDC/GBP:buy",
+            "kraken:USDG/USDC:buy",
+            "kraken:USDG/USD:sell"
+          ],
+          "first_seen": "02:38:52",
+          "episodes": 2,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 USDC \u2192 USDG \u2192 USDT \u2192 BTC \u2192 WBTC \u2192 USD",
+          "net_return": 0.0005238348941731807,
+          "max_size_usd": 56576.99943423,
+          "max_profit_usd": 29.637006511265977,
+          "legs": [
+            "kraken:USDC/USD:buy",
+            "kraken:USDG/USDC:buy",
+            "kraken:USDG/USDT:sell",
+            "kraken:BTC/USDT:buy",
+            "kraken:WBTC/BTC:buy",
+            "kraken:WBTC/USD:sell"
+          ],
+          "first_seen": "04:15:05",
+          "episodes": 7,
+          "max_consecutive_snapshots": 2
+        }
+      ],
+      "symbols_split_median": 0.0
+    },
+    "kraken | taker fees": {
+      "fees": {
+        "kraken": 0.008
+      },
+      "snapshots_with_cycle": 0,
+      "fraction_with_cycle": 0.0,
+      "cycle_observations": 0,
+      "distinct_cycles": 0,
+      "capped_at_limit": 0,
+      "cycle_length_counts": {},
+      "net_return": {
+        "median": NaN,
+        "p90": NaN,
+        "max": NaN
+      },
+      "max_size_usd": {
+        "median": NaN,
+        "p90": NaN,
+        "max": NaN
+      },
+      "max_profit_usd": {
+        "median": NaN,
+        "p90": NaN,
+        "max": NaN
+      },
+      "episodes": 0,
+      "episode_snapshots": {
+        "median": NaN,
+        "max": NaN
+      },
+      "episode_span_s": {
+        "median": NaN,
+        "max": NaN
+      },
+      "top_by_profit": [],
+      "symbols_split_median": 0.0
+    },
+    "kraken | fee 0.001": {
+      "fees": {
+        "kraken": 0.001
+      },
+      "snapshots_with_cycle": 518,
+      "fraction_with_cycle": 0.3597222222222222,
+      "cycle_observations": 647,
+      "distinct_cycles": 38,
+      "capped_at_limit": 0,
+      "cycle_length_counts": {
+        "3": 548,
+        "4": 92,
+        "5": 5,
+        "6": 2
+      },
+      "net_return": {
+        "median": 0.0016073740100759348,
+        "p90": 0.005780756775434437,
+        "max": 0.013323752165374625
+      },
+      "max_size_usd": {
+        "median": 0.15888108108108107,
+        "p90": 5.06000746151557,
+        "max": 1667.3714290290293
+      },
+      "max_profit_usd": {
+        "median": 0.0002321978246846795,
+        "p90": 0.00808710424016146,
+        "max": 0.6720167963120962
+      },
+      "episodes": 180,
+      "episode_snapshots": {
+        "median": 1,
+        "max": 77
+      },
+      "episode_span_s": {
+        "median": 0.0,
+        "max": 379.99699997901917
+      },
+      "top_by_profit": [
+        {
+          "cycle": "EUR \u2192 ETH \u2192 EURC \u2192 EUR",
+          "net_return": 0.000403182736718799,
+          "max_size_usd": 1666.7796884884888,
+          "max_profit_usd": 0.6720167963120962,
+          "legs": [
+            "kraken:ETH/EUR:buy",
+            "kraken:ETH/EURC:sell",
+            "kraken:EURC/EUR:sell"
+          ],
+          "first_seen": "02:39:32",
+          "episodes": 2,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USDC \u2192 SOL \u2192 CAD \u2192 USDC",
+          "net_return": 0.000854773431083311,
+          "max_size_usd": 69.4395825,
+          "max_profit_usd": 0.059355110186517644,
+          "legs": [
+            "kraken:SOL/USDC:buy",
+            "kraken:SOL/CAD:sell",
+            "kraken:USDC/CAD:buy"
+          ],
+          "first_seen": "02:44:12",
+          "episodes": 6,
+          "max_consecutive_snapshots": 6
+        },
+        {
+          "cycle": "EUR \u2192 SOL \u2192 CAD \u2192 ETH \u2192 EURC \u2192 EUR",
+          "net_return": 0.0006214380530122909,
+          "max_size_usd": 69.54047167167168,
+          "max_profit_usd": 0.04321509532120002,
+          "legs": [
+            "kraken:SOL/EUR:buy",
+            "kraken:SOL/CAD:sell",
+            "kraken:ETH/CAD:buy",
+            "kraken:ETH/EURC:sell",
+            "kraken:EURC/EUR:sell"
+          ],
+          "first_seen": "02:39:22",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "EUR \u2192 SOL \u2192 CAD \u2192 USDC \u2192 ETH \u2192 EURC \u2192 EUR",
+          "net_return": 0.0004296552149085642,
+          "max_size_usd": 69.54047167167168,
+          "max_profit_usd": 0.029878426300935016,
+          "legs": [
+            "kraken:SOL/EUR:buy",
+            "kraken:SOL/CAD:sell",
+            "kraken:USDC/CAD:buy",
+            "kraken:ETH/USDC:buy",
+            "kraken:ETH/EURC:sell",
+            "kraken:EURC/EUR:sell"
+          ],
+          "first_seen": "02:39:27",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "ETH \u2192 SOL \u2192 CAD \u2192 ETH",
+          "net_return": 0.00036585614472128825,
+          "max_size_usd": 69.49065256756757,
+          "max_profit_usd": 0.025423582242536758,
+          "legs": [
+            "kraken:SOL/ETH:buy",
+            "kraken:SOL/CAD:sell",
+            "kraken:ETH/CAD:buy"
+          ],
+          "first_seen": "02:44:22",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USDT \u2192 SOL \u2192 CAD \u2192 USDT",
+          "net_return": 0.0002500734302932628,
+          "max_size_usd": 69.49630775775776,
+          "max_profit_usd": 0.017379180073698774,
+          "legs": [
+            "kraken:SOL/USDT:buy",
+            "kraken:SOL/CAD:sell",
+            "kraken:USDT/CAD:buy"
+          ],
+          "first_seen": "02:44:12",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 XL1 \u2192 EUR \u2192 USD",
+          "net_return": 0.004266316170090656,
+          "max_size_usd": 3.684684684684685,
+          "max_profit_usd": 0.015720029851955662,
+          "legs": [
+            "kraken:XL1/USD:buy",
+            "kraken:XL1/EUR:sell",
+            "kraken:EUR/USD:sell"
+          ],
+          "first_seen": "02:39:07",
+          "episodes": 5,
+          "max_consecutive_snapshots": 7
+        },
+        {
+          "cycle": "USD \u2192 XL1 \u2192 EUR \u2192 TX \u2192 USD",
+          "net_return": 0.0015481800990735373,
+          "max_size_usd": 3.7057057057057055,
+          "max_profit_usd": 0.005737099826596832,
+          "legs": [
+            "kraken:XL1/USD:buy",
+            "kraken:XL1/EUR:sell",
+            "kraken:TX/EUR:buy",
+            "kraken:TX/USD:sell"
+          ],
+          "first_seen": "03:35:15",
+          "episodes": 2,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 XL1 \u2192 EUR \u2192 WBT \u2192 USD",
+          "net_return": 0.0006203128703723415,
+          "max_size_usd": 3.7237237237237237,
+          "max_profit_usd": 0.002309873751536647,
+          "legs": [
+            "kraken:XL1/USD:buy",
+            "kraken:XL1/EUR:sell",
+            "kraken:WBT/EUR:buy",
+            "kraken:WBT/USD:sell"
+          ],
+          "first_seen": "04:49:40",
+          "episodes": 1,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USD \u2192 EUR \u2192 TRAC \u2192 USD",
+          "net_return": 0.0013727585761387218,
+          "max_size_usd": 1.3657561465369272,
+          "max_profit_usd": 0.0018748534630727396,
+          "legs": [
+            "kraken:EUR/USD:buy",
+            "kraken:TRAC/EUR:buy",
+            "kraken:TRAC/USD:sell"
+          ],
+          "first_seen": "04:00:55",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        }
+      ],
+      "symbols_split_median": 0.0
+    },
+    "binanceus+kraken | no fees": {
+      "fees": {
+        "binanceus": 0.0,
+        "kraken": 0.0
+      },
+      "snapshots_with_cycle": 1440,
+      "fraction_with_cycle": 1.0,
+      "cycle_observations": 28800,
+      "distinct_cycles": 5457,
+      "capped_at_limit": 1440,
+      "cycle_length_counts": {
+        "2": 3754,
+        "3": 9744,
+        "4": 8791,
+        "5": 3671,
+        "6": 1854,
+        "7": 677,
+        "8": 244,
+        "9": 57,
+        "10": 6,
+        "11": 2
+      },
+      "net_return": {
+        "median": 0.0006974112664701604,
+        "p90": 0.0024395653138167273,
+        "max": 0.020645444420063663
+      },
+      "max_size_usd": {
+        "median": 50.57594,
+        "p90": 3524.416917332256,
+        "max": 59937.50542500001
+      },
+      "max_profit_usd": {
+        "median": 0.035557836310418305,
+        "p90": 0.9812322319103376,
+        "max": 29.7268365292688
+      },
+      "episodes": 19524,
+      "episode_snapshots": {
+        "median": 1,
+        "max": 202
+      },
+      "episode_span_s": {
+        "median": 0.0,
+        "max": 1004.9990000724792
+      },
+      "top_by_profit": [
+        {
+          "cycle": "USD \u2192 ETH \u2192 GBP \u2192 BTC \u2192 EURC \u2192 USD",
+          "net_return": 0.0011455747228446,
+          "max_size_usd": 13408.079999999998,
+          "max_profit_usd": 15.359957529878223,
+          "legs": [
+            "kraken:ETH/USD:buy",
+            "kraken:ETH/GBP:sell",
+            "kraken:BTC/GBP:buy",
+            "kraken:BTC/EURC:sell",
+            "kraken:EURC/USD:sell"
+          ],
+          "first_seen": "02:29:07",
+          "episodes": 2,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 GBP \u2192 USDC \u2192 USDG \u2192 USDT \u2192 USD",
+          "net_return": 0.00048630064771160164,
+          "max_size_usd": 24133.180368755333,
+          "max_profit_usd": 11.735981244666627,
+          "legs": [
+            "kraken:BTC/USD:buy",
+            "kraken:BTC/GBP:sell",
+            "kraken:USDC/GBP:buy",
+            "kraken:USDG/USDC:buy",
+            "kraken:USDG/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "03:48:20",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USDT \u2192 BTC \u2192 CAD \u2192 USDC \u2192 USDG \u2192 USDT",
+          "net_return": 0.0018562951914080639,
+          "max_size_usd": 5969.55976916,
+          "max_profit_usd": 11.08126509431474,
+          "legs": [
+            "binanceus:BTC/USDT:buy",
+            "kraken:BTC/CAD:sell",
+            "kraken:USDC/CAD:buy",
+            "kraken:USDG/USDC:buy",
+            "kraken:USDG/USDT:sell"
+          ],
+          "first_seen": "02:22:22",
+          "episodes": 22,
+          "max_consecutive_snapshots": 4
+        },
+        {
+          "cycle": "GBP \u2192 ETH \u2192 BTC \u2192 GBP",
+          "net_return": 0.00071733733380408,
+          "max_size_usd": 13325.140152,
+          "max_profit_usd": 9.558620509201374,
+          "legs": [
+            "kraken:ETH/GBP:buy",
+            "kraken:ETH/BTC:sell",
+            "kraken:BTC/GBP:sell"
+          ],
+          "first_seen": "02:39:27",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 BTC \u2192 CAD \u2192 USDC \u2192 USD",
+          "net_return": 0.0015770642889265662,
+          "max_size_usd": 5974.027818552975,
+          "max_profit_usd": 9.421425933693774,
+          "legs": [
+            "kraken:USDT/USD:buy",
+            "binanceus:BTC/USDT:buy",
+            "kraken:BTC/CAD:sell",
+            "kraken:USDC/CAD:buy",
+            "binanceus:USDC/USD:sell"
+          ],
+          "first_seen": "02:31:57",
+          "episodes": 3,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "EUR \u2192 BTC \u2192 USDC \u2192 USDG \u2192 USDT \u2192 EUR",
+          "net_return": 0.0001392029878075629,
+          "max_size_usd": 59887.153076,
+          "max_profit_usd": 8.336470639468082,
+          "legs": [
+            "kraken:BTC/EUR:buy",
+            "kraken:BTC/USDC:sell",
+            "kraken:USDG/USDC:buy",
+            "kraken:USDG/USDT:sell",
+            "kraken:USDT/EUR:sell"
+          ],
+          "first_seen": "02:15:47",
+          "episodes": 2,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "EUR \u2192 BTC \u2192 CAD \u2192 USDC \u2192 USDT \u2192 EUR",
+          "net_return": 0.0016415966749283584,
+          "max_size_usd": 4991.021420495617,
+          "max_profit_usd": 8.193244168381817,
+          "legs": [
+            "kraken:BTC/EUR:buy",
+            "kraken:BTC/CAD:sell",
+            "kraken:USDC/CAD:buy",
+            "binanceus:USDC/USDT:sell",
+            "kraken:USDT/EUR:sell"
+          ],
+          "first_seen": "02:35:32",
+          "episodes": 2,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USDT \u2192 BTC \u2192 AUD \u2192 USDT",
+          "net_return": 0.001482065642556929,
+          "max_size_usd": 5305.289088318373,
+          "max_profit_usd": 7.862786681628833,
+          "legs": [
+            "binanceus:BTC/USDT:buy",
+            "kraken:BTC/AUD:sell",
+            "kraken:USDT/AUD:buy"
+          ],
+          "first_seen": "04:20:50",
+          "episodes": 71,
+          "max_consecutive_snapshots": 15
+        },
+        {
+          "cycle": "EUR \u2192 BTC \u2192 CAD \u2192 USDC \u2192 EUR",
+          "net_return": 0.0011276953358261288,
+          "max_size_usd": 6599.467768514511,
+          "max_profit_usd": 7.442189021488684,
+          "legs": [
+            "kraken:BTC/EUR:buy",
+            "kraken:BTC/CAD:sell",
+            "kraken:USDC/CAD:buy",
+            "kraken:USDC/EUR:sell"
+          ],
+          "first_seen": "02:19:37",
+          "episodes": 6,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "EUR \u2192 BTC \u2192 PAXG \u2192 EUR",
+          "net_return": 0.0020918426228622167,
+          "max_size_usd": 3521.034089016045,
+          "max_profit_usd": 7.365449183954599,
+          "legs": [
+            "kraken:BTC/EUR:buy",
+            "kraken:PAXG/BTC:buy",
+            "kraken:PAXG/EUR:sell"
+          ],
+          "first_seen": "03:31:20",
+          "episodes": 167,
+          "max_consecutive_snapshots": 65
+        }
+      ],
+      "symbols_split_median": 25.0
+    },
+    "binanceus+kraken | taker fees": {
+      "fees": {
+        "binanceus": 0.0002,
+        "kraken": 0.008
+      },
+      "snapshots_with_cycle": 198,
+      "fraction_with_cycle": 0.1375,
+      "cycle_observations": 240,
+      "distinct_cycles": 11,
+      "capped_at_limit": 0,
+      "cycle_length_counts": {
+        "3": 174,
+        "4": 66
+      },
+      "net_return": {
+        "median": 0.0034494215244715853,
+        "p90": 0.0035763239117028167,
+        "max": 0.004442222379271055
+      },
+      "max_size_usd": {
+        "median": 3.3388020138934773,
+        "p90": 13.460749999999999,
+        "max": 13.460749999999999
+      },
+      "max_profit_usd": {
+        "median": 0.0013476811211362554,
+        "p90": 0.04814000209445369,
+        "max": 0.04814000209445369
+      },
+      "episodes": 30,
+      "episode_snapshots": {
+        "median": 4,
+        "max": 39
+      },
+      "episode_span_s": {
+        "median": 14.995000123977661,
+        "max": 190.0
+      },
+      "top_by_profit": [
+        {
+          "cycle": "USD \u2192 USDUC \u2192 USDT \u2192 USD",
+          "net_return": 0.0034494215244715853,
+          "max_size_usd": 13.460749999999999,
+          "max_profit_usd": 0.04643180078553089,
+          "legs": [
+            "kraken:USDUC/USD:buy",
+            "binanceus:USDUC/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "04:47:30",
+          "episodes": 4,
+          "max_consecutive_snapshots": 39
+        },
+        {
+          "cycle": "USD \u2192 VET \u2192 USDT \u2192 USD",
+          "net_return": 0.0007508015333326234,
+          "max_size_usd": 4.413436088709678,
+          "max_profit_usd": 0.0033136145826687625,
+          "legs": [
+            "kraken:VET/USD:buy",
+            "binanceus:VET/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "04:41:00",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 BCH \u2192 USDT \u2192 USD",
+          "net_return": 0.0004044661227899926,
+          "max_size_usd": 3.3320000000000003,
+          "max_profit_usd": 0.0013476811211362554,
+          "legs": [
+            "binanceus:BCH/USD:buy",
+            "binanceus:BCH/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "04:28:25",
+          "episodes": 4,
+          "max_consecutive_snapshots": 9
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 ZEC \u2192 USD",
+          "net_return": 0.00041011760925901974,
+          "max_size_usd": 3.1064243366776982,
+          "max_profit_usd": 0.0012739993223022938,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:ZEC/USDT:buy",
+            "binanceus:ZEC/USD:sell"
+          ],
+          "first_seen": "02:16:32",
+          "episodes": 10,
+          "max_consecutive_snapshots": 4
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 ADA \u2192 USD",
+          "net_return": 0.0003324156694242131,
+          "max_size_usd": 3.3388020138934773,
+          "max_profit_usd": 0.001109870106523311,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:ADA/USDT:buy",
+            "binanceus:ADA/USD:sell"
+          ],
+          "first_seen": "03:35:45",
+          "episodes": 1,
+          "max_consecutive_snapshots": 7
+        },
+        {
+          "cycle": "USD \u2192 BTC \u2192 USDT \u2192 ADA \u2192 USD",
+          "net_return": 0.0004127202690165088,
+          "max_size_usd": 1.7721141,
+          "max_profit_usd": 0.0007313874080799484,
+          "legs": [
+            "binanceus:BTC/USD:buy",
+            "binanceus:BTC/USDT:sell",
+            "binanceus:ADA/USDT:buy",
+            "binanceus:ADA/USD:sell"
+          ],
+          "first_seen": "03:35:50",
+          "episodes": 1,
+          "max_consecutive_snapshots": 3
+        },
+        {
+          "cycle": "USD \u2192 LPT \u2192 USDT \u2192 USD",
+          "net_return": 0.000421609468768791,
+          "max_size_usd": 0.9442999999999999,
+          "max_profit_usd": 0.0003981258213583693,
+          "legs": [
+            "binanceus:LPT/USD:buy",
+            "binanceus:LPT/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "02:43:02",
+          "episodes": 1,
+          "max_consecutive_snapshots": 17
+        },
+        {
+          "cycle": "USD \u2192 USDUC \u2192 USDT \u2192 ATOM \u2192 USD",
+          "net_return": 0.004442222379271055,
+          "max_size_usd": 0.0576324040449802,
+          "max_profit_usd": 0.00025601595501980267,
+          "legs": [
+            "kraken:USDUC/USD:buy",
+            "binanceus:USDUC/USDT:sell",
+            "binanceus:ATOM/USDT:buy",
+            "binanceus:ATOM/USD:sell"
+          ],
+          "first_seen": "04:53:05",
+          "episodes": 5,
+          "max_consecutive_snapshots": 26
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 NEAR \u2192 USD",
+          "net_return": 4.8781818093202034e-05,
+          "max_size_usd": 1.4341431398902307,
+          "max_profit_usd": 6.996010976973883e-05,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:NEAR/USDT:buy",
+            "binanceus:NEAR/USD:sell"
+          ],
+          "first_seen": "04:05:10",
+          "episodes": 1,
+          "max_consecutive_snapshots": 11
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 ATOM \u2192 USD",
+          "net_return": 0.0005790059786987545,
+          "max_size_usd": 0.057854921654464916,
+          "max_profit_usd": 3.349834553508322e-05,
+          "legs": [
+            "binanceus:USDT/USD:buy",
+            "binanceus:ATOM/USDT:buy",
+            "binanceus:ATOM/USD:sell"
+          ],
+          "first_seen": "04:53:15",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        }
+      ],
+      "symbols_split_median": 25.0
+    },
+    "binanceus+kraken | fee 0.001": {
+      "fees": {
+        "binanceus": 0.001,
+        "kraken": 0.001
+      },
+      "snapshots_with_cycle": 920,
+      "fraction_with_cycle": 0.6388888888888888,
+      "cycle_observations": 1693,
+      "distinct_cycles": 104,
+      "capped_at_limit": 0,
+      "cycle_length_counts": {
+        "2": 284,
+        "3": 969,
+        "4": 370,
+        "5": 36,
+        "6": 33,
+        "8": 1
+      },
+      "net_return": {
+        "median": 0.0011906197383886319,
+        "p90": 0.006515759480580252,
+        "max": 0.013323752165374625
+      },
+      "max_size_usd": {
+        "median": 9.955574685469745,
+        "p90": 69.4595795,
+        "max": 2357.493530452953
+      },
+      "max_profit_usd": {
+        "median": 0.007106240973351264,
+        "p90": 0.07958377447999544,
+        "max": 0.6720167963120962
+      },
+      "episodes": 360,
+      "episode_snapshots": {
+        "median": 2,
+        "max": 187
+      },
+      "episode_span_s": {
+        "median": 5.0,
+        "max": 930.0020000934601
+      },
+      "top_by_profit": [
+        {
+          "cycle": "EUR \u2192 ETH \u2192 EURC \u2192 EUR",
+          "net_return": 0.000403182736718799,
+          "max_size_usd": 1666.7796884884888,
+          "max_profit_usd": 0.6720167963120962,
+          "legs": [
+            "kraken:ETH/EUR:buy",
+            "kraken:ETH/EURC:sell",
+            "kraken:EURC/EUR:sell"
+          ],
+          "first_seen": "02:39:32",
+          "episodes": 2,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USD \u2192 VET \u2192 USD",
+          "net_return": 0.0022138458120417592,
+          "max_size_usd": 134.26045965965966,
+          "max_profit_usd": 0.2972319563403391,
+          "legs": [
+            "kraken:VET/USD:buy",
+            "binanceus:VET/USD:sell"
+          ],
+          "first_seen": "03:49:50",
+          "episodes": 25,
+          "max_consecutive_snapshots": 18
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 VELO \u2192 USD",
+          "net_return": 0.0026810470512739215,
+          "max_size_usd": 79.78092867642418,
+          "max_profit_usd": 0.2138964235758221,
+          "legs": [
+            "kraken:USDT/USD:buy",
+            "binanceus:VELO/USDT:buy",
+            "kraken:VELO/USD:sell"
+          ],
+          "first_seen": "04:06:05",
+          "episodes": 1,
+          "max_consecutive_snapshots": 6
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 GTC \u2192 USD",
+          "net_return": 0.0014348075231023216,
+          "max_size_usd": 142.52942091460832,
+          "max_profit_usd": 0.2045022853916974,
+          "legs": [
+            "kraken:USDT/USD:buy",
+            "binanceus:GTC/USDT:buy",
+            "kraken:GTC/USD:sell"
+          ],
+          "first_seen": "03:36:05",
+          "episodes": 4,
+          "max_consecutive_snapshots": 2
+        },
+        {
+          "cycle": "USD \u2192 NPC \u2192 USDT \u2192 GTC \u2192 USD",
+          "net_return": 0.002298100335596631,
+          "max_size_usd": 52.69583383383383,
+          "max_profit_usd": 0.12110031341807784,
+          "legs": [
+            "kraken:NPC/USD:buy",
+            "binanceus:NPC/USDT:sell",
+            "binanceus:GTC/USDT:buy",
+            "kraken:GTC/USD:sell"
+          ],
+          "first_seen": "03:37:30",
+          "episodes": 3,
+          "max_consecutive_snapshots": 9
+        },
+        {
+          "cycle": "USD \u2192 USDUC \u2192 USDT \u2192 HBAR \u2192 USD",
+          "net_return": 0.00898252235024466,
+          "max_size_usd": 13.36643043043043,
+          "max_profit_usd": 0.12006426008433169,
+          "legs": [
+            "kraken:USDUC/USD:buy",
+            "binanceus:USDUC/USDT:sell",
+            "binanceus:HBAR/USDT:buy",
+            "kraken:HBAR/USD:sell"
+          ],
+          "first_seen": "04:51:05",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 USDUC \u2192 USDT \u2192 USD",
+          "net_return": 0.00891368903510803,
+          "max_size_usd": 13.36643043043043,
+          "max_profit_usd": 0.11914420436626204,
+          "legs": [
+            "kraken:USDUC/USD:buy",
+            "binanceus:USDUC/USDT:sell",
+            "binanceus:USDT/USD:sell"
+          ],
+          "first_seen": "04:47:30",
+          "episodes": 8,
+          "max_consecutive_snapshots": 187
+        },
+        {
+          "cycle": "USD \u2192 USDT \u2192 JUP \u2192 USD",
+          "net_return": 0.0030856618726722296,
+          "max_size_usd": 14.534628300300302,
+          "max_profit_usd": 0.04484894837969942,
+          "legs": [
+            "kraken:USDT/USD:buy",
+            "binanceus:JUP/USDT:buy",
+            "kraken:JUP/USD:sell"
+          ],
+          "first_seen": "04:01:00",
+          "episodes": 8,
+          "max_consecutive_snapshots": 13
+        },
+        {
+          "cycle": "EUR \u2192 SOL \u2192 CAD \u2192 ETH \u2192 EURC \u2192 EUR",
+          "net_return": 0.0006214380530122909,
+          "max_size_usd": 69.54047167167168,
+          "max_profit_usd": 0.04321509532120002,
+          "legs": [
+            "kraken:SOL/EUR:buy",
+            "kraken:SOL/CAD:sell",
+            "kraken:ETH/CAD:buy",
+            "kraken:ETH/EURC:sell",
+            "kraken:EURC/EUR:sell"
+          ],
+          "first_seen": "02:39:22",
+          "episodes": 1,
+          "max_consecutive_snapshots": 1
+        },
+        {
+          "cycle": "USD \u2192 BAT \u2192 USDT \u2192 JUP \u2192 USD",
+          "net_return": 0.0024361927893059576,
+          "max_size_usd": 14.526702224049375,
+          "max_profit_usd": 0.0353898472106239,
+          "legs": [
+            "kraken:BAT/USD:buy",
+            "binanceus:BAT/USDT:sell",
+            "binanceus:JUP/USDT:buy",
+            "kraken:JUP/USD:sell"
+          ],
+          "first_seen": "03:58:45",
+          "episodes": 2,
+          "max_consecutive_snapshots": 3
+        }
+      ],
+      "symbols_split_median": 25.0
+    }
+  },
+  "source_file": "recordings/2026-11-21_kraken_binanceus.csv.gz"
+}

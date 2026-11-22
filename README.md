@@ -34,7 +34,7 @@ It is built from real renders of the page by `scripts/make_demo_video.py`.
 | `docs/theory.md` | The math: log transform, proof that n − 1 rounds suffice, correctness of the round-n check, why the predecessor walk lands on the cycle, complexity, SPFA, why not Dijkstra |
 | `web/` | Interactive demo, deployed to [GitHub Pages](https://emmanueladutwum123.github.io/fx-arbitrage-graph/). Step-through teaching mode, plus a live-snapshot mode on recorded Kraken and Binance.US order books. Static and offline: no network calls, works from `file://` |
 | `slides/` | 20-minute talk for Math 280 (reveal.js + KaTeX, bundled for offline use), [live](https://emmanueladutwum123.github.io/fx-arbitrage-graph/slides/), [PDF](slides/fx-arbitrage-slides.pdf) |
-| `results/` | Measured benchmarks and the analysis of a real 2-hour recording |
+| `results/` | Measured benchmarks and the analysis of a real 2-hour recording (1,440 snapshots) |
 | `cpp/` | Optional C++20 port (pybind11), cross-checked against the Python code |
 
 ## Install and use
@@ -89,7 +89,54 @@ keeps the venues apart (`ENJ@kraken`, `ENJ@binanceus`).
 
 ## Results on real data
 
-RESULTS_SECTION
+**ECB reference rates** (`fxarb scan --venue frankfurter`, 30 currencies, 870 edges): no
+negative cycle; the search settles after 2 rounds. This is expected, since the ECB publishes
+mutually consistent reference rates, not tradable quotes.
+
+**Crypto order books.** `fxarb record` saved the best bid and ask, with sizes, for every pair on
+Kraken and Binance.US every 5 seconds: **1,440 snapshots** (median 681 assets, 1,618 pairs) between
+02:10 and 04:56 UTC on 22 November 2026. The laptop slept once, leaving a 46-minute hole plus a few
+short fetch failures (`recording_gaps` in the JSON). The analysis covers **1 h 59 m**, and a cycle
+is never counted as persisting across a gap. Full output:
+[`results/2026-11-21_kraken_binanceus.json`](results/2026-11-21_kraken_binanceus.json), produced by
+
+```bash
+fxarb analyze recordings/2026-11-21_kraken_binanceus.csv.gz --fee 0.001 --json-out results/2026-11-21_kraken_binanceus.json
+```
+
+| venue | fees per trade | snapshots with ≥1 cycle | median net return | median max profit | largest max profit |
+|---|---|---:|---:|---:|---:|
+| Kraken | none | 1,440 (100%) | +0.045% | $0.04 | $61.04 |
+| Kraken | 0.10% (hypothetical) | 518 (36.0%) | +0.161% | $0.0002 | $0.67 |
+| Kraken | **0.80% taker** | **0 (0%)** | | | |
+| Binance.US | none | 1,433 (99.5%) | +0.003% | $0.002 | $0.56 |
+| Binance.US | **0.02% taker** | **95 (6.6%)** | +0.033% | $0.0004 | $0.0015 |
+| Binance.US | 0.10% (hypothetical) | 0 (0%) | | | |
+| both | none | 1,440 (100%) | +0.070% | $0.04 | $29.73 |
+| both | **taker** | **198 (13.8%)** | +0.345% | $0.0013 | $0.048 |
+| both | 0.10% (hypothetical) | 920 (63.9%) | +0.119% | $0.007 | $0.67 |
+
+"Max profit" is the net return times the largest size the best price level allows (the tightest
+leg); medians are over all cycle observations. The largest single one was a 5-leg Kraken cycle,
+EUR → BTC → GBP → USDC → USDT → EUR: +0.108% on up to $56,560. What this says:
+
+* **Without fees, negative cycles are everywhere**, in every snapshot, but they are small: the
+  median one would earn about 4 cents. Single returns reach +2.06% on Kraken, but the tradable
+  size is what limits profit: the median cycle there allows only $198.
+* **At the real entry-tier fees, Kraken has none at all** in 2 hours. On Binance.US, whose taker fee
+  is only 0.02%, a few survive in 6.6% of snapshots, each worth at most $0.0015.
+* **Combining venues adds a few cross-venue cycles.** The best is about 5 cents on $13: buy the
+  thinly traded token USDUC on Kraken, sell it on Binance.US. It would also require money already
+  sitting on both exchanges. A median of 25 symbols per snapshot were kept apart because the two
+  venues price them more than 10% differently.
+* **They don't last.** With no fees, the median cycle is seen in a single 5-second snapshot. With
+  taker fees on both venues, the median episode is 4 snapshots (15 s), the longest 190 s.
+* The hypothetical 0.10% fee rows show how quickly the picture changes for a large trader with
+  lower fees, but the sizes stay small (median under $10).
+
+With no fees, `analyze` hit its limit of 20 distinct cycles per snapshot in most snapshots, so the
+distinct-cycle counts in the JSON are lower bounds for those rows. Bellman–Ford finds *a* negative
+cycle, not the best one (see Limitations), so the profit figures describe the cycles it listed.
 
 ## Performance
 

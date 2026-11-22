@@ -219,11 +219,26 @@ html.print-pdf .pdf-only{display:block}
 <!-- ============================================================ 7. REAL DATA -->
 <section id="real-data">
   <div class="eyebrow">Real data</div>
-  <h2>REAL_DATA_TITLE</h2>
-  REAL_DATA_BODY
+  <h2>Two hours of real order books</h2>
+  <p class="small muted" style="font-size:.55em;margin-bottom:.4em">1,440 snapshots every 5 s · Kraken + Binance.US top of book · ~680 assets, 1,618 pairs · 22 Nov 2026 UTC, 1 h 59 m covered (a 46-min gap is excluded)</p>
+  <table>
+    <tr><th style="text-align:left">market, fees</th><th>snapshots with a cycle</th><th>median max profit</th><th>best seen</th></tr>
+    <tr><td style="text-align:left">ECB reference rates (30 currencies)</td><td>none</td><td>–</td><td>–</td></tr>
+    <tr><td style="text-align:left">Kraken, no fees</td><td>100%</td><td>$0.04</td><td>$61 on $56,560</td></tr>
+    <tr><td style="text-align:left">Kraken, 0.80% taker</td><td><b>0%</b></td><td>–</td><td>–</td></tr>
+    <tr><td style="text-align:left">Binance.US, 0.02% taker</td><td>6.6%</td><td>$0.0004</td><td>$0.0015</td></tr>
+    <tr><td style="text-align:left">both venues, taker fees</td><td>13.8%</td><td>$0.0013</td><td>$0.05 on $13</td></tr>
+  </table>
+  <p style="font-size:.62em;margin-top:.6em">The negative cycles are really there, but <b>fees remove almost all of them</b>; the rest are worth cents at most and gone within seconds.</p>
+  <p class="small muted" style="font-size:.5em">Max profit = return × largest size the best price level allows. Data: <span class="mono">results/2026-11-21_kraken_binanceus.json</span></p>
   <aside class="notes">
     <p class="timing">Time 2:00 · running total 16:00</p>
-    REAL_DATA_NOTES
+    <p>Here is the honest test. I recorded the best prices for every trading pair on both exchanges every five seconds: one thousand four hundred forty snapshots, about two hours of market. My laptop slept for part of it, and no cycle is counted across that gap.</p>
+    <p>First, the European Central Bank reference rates: thirty currencies, and the algorithm stops after two rounds. No arbitrage, as expected, because those rates are published to be consistent.</p>
+    <p>Now Kraken with no fees. Every single snapshot has a negative cycle. The typical one would earn about four cents, and the best I saw would earn sixty-one dollars on about fifty-seven thousand, a tenth of a percent. Now apply Kraken's real taker fee, eight tenths of a percent per trade. Zero snapshots. Not one cycle in two hours.</p>
+    <p>Binance dot U S charges only two hundredths of a percent, so a few cycles survive: in about seven percent of snapshots, each worth less than a fifth of a cent. Combining both exchanges with real fees, about fourteen percent of snapshots have a cycle, and the best would earn five cents on thirteen dollars, through a thinly traded token, with money already sitting on both exchanges.</p>
+    <p>Without fees, most cycles last a single snapshot, five seconds or less. By the time you sent three orders, the prices would have moved.</p>
+    <p>So the mathematics is exactly right: the negative cycles really are there in the raw prices. But the market is efficient in the sense that matters. The gaps are smaller than the cost of trading them, and anyone who could profit is faster than a laptop polling every five seconds.</p>
   </aside>
 </section>
 
