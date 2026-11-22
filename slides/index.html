@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbitrage as a Negative Cycle · Math 280</title>
+<link rel="stylesheet" href="vendor/reveal/reset.css">
+<link rel="stylesheet" href="vendor/reveal/reveal.css">
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<style>
+:root{
+  --bg:#f7f8fa; --ink:#14212e; --muted:#566676; --line:#d5dde5; --panel:#ffffff;
+  --accent:#22628a; --cycle:#b83c0a; --cycle-soft:#fdebe1; --good:#1d7a4d;
+  --f-display:"IBM Plex Sans Condensed","Avenir Next Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r-background-color:var(--bg);
+}
+html.dark{--bg:#0f161d; --ink:#e3eaf0; --muted:#9fb0bf; --line:#2a3946; --panel:#16212b;
+  --accent:#6fb3d9; --cycle:#fb8a4c; --cycle-soft:#3a2419; --good:#4fc28a}
+html,body{background:var(--bg)}
+.reveal{font-family:var(--f-body);font-size:34px;color:var(--ink)}
+.reveal .slides{text-align:left}
+.reveal .slides section{height:100%;display:flex !important;flex-direction:column;justify-content:center;gap:.5em}
+.reveal h1,.reveal h2,.reveal h3{font-family:var(--f-display);color:var(--ink);margin:0;line-height:1.08;letter-spacing:-.01em;text-wrap:balance}
+.reveal h1{font-size:2.3em}
+.reveal h2{font-size:1.55em}
+.reveal p,.reveal li{line-height:1.35;margin:0}
+.reveal ul,.reveal ol{margin:0 0 0 1.1em;display:flex;flex-direction:column;gap:.35em}
+.eyebrow{font-family:var(--f-mono);font-size:.55em;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:.72em}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.box{background:var(--panel);border:2px solid var(--line);border-radius:14px;padding:.55em .8em}
+.thm{border-left:6px solid var(--accent)}
+.thm b:first-child{color:var(--accent)}
+.hot{color:var(--cycle);font-weight:600}
+.good{color:var(--good);font-weight:600}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:1em;align-items:center}
+.cols3{display:grid;grid-template-columns:repeat(3,1fr);gap:.6em}
+.big{font-size:1.5em;font-family:var(--f-display);font-weight:700}
+.reveal table{border-collapse:collapse;font-family:var(--f-mono);font-size:.62em;width:100%}
+.reveal th,.reveal td{padding:.28em .5em;border-bottom:1px solid var(--line);text-align:right}
+.reveal th:first-child,.reveal td:first-child{text-align:left}
+.reveal th{color:var(--muted);font-weight:500}
+.reveal a{color:var(--accent)}
+.katex{font-size:1.05em}
+svg text{font-family:var(--f-mono)}
+.reveal .progress{color:var(--accent)}
+.reveal .slide-number{background:transparent;color:var(--muted);font-family:var(--f-mono);font-size:16px}
+.demo-frame{width:100%;height:13em;border:2px solid var(--line);border-radius:12px;background:var(--panel)}
+.pdf-only{display:none}
+html.print-pdf .pdf-only{display:block}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- ============================================================ 1. HOOK -->
+<section>
+  <div class="eyebrow">Math 280 · Discrete Mathematics</div>
+  <h1>Can you make money just by exchanging currencies in a circle?</h1>
+  <div class="box mono" style="font-size:.8em">
+    $1,000,000 → €919,540 → ¥151,048,838 → <span class="hot">$1,006,489</span>
+  </div>
+  <p class="muted small">Sample rates from the demo, 0.05% cost per trade and one mispriced EUR→JPY quote.</p>
+  <aside class="notes">
+    <p class="timing">Time 1:00 · running total 1:00</p>
+    <p>Imagine you have one million dollars and three exchange desks. The first turns dollars into euros, the second turns euros into yen, and the third turns yen back into dollars. You go around the circle once and you come back with one million, six thousand, four hundred dollars. Nothing was built, nothing was waited for, and the gain came only from the prices. Traders call this arbitrage.</p>
+    <p>My claim today is that finding it is a question about cycles in a directed graph, and that an algorithm we can prove correct, Bellman–Ford, answers it. I will build the model, prove the theorem that makes the algorithm work, run it live on a toy market, and then show you what it found on real crypto exchange data.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 2. GRAPH MODEL -->
+<section>
+  <div class="eyebrow">The model</div>
+  <h2>Currencies are vertices, quotes are weighted directed edges</h2>
+  <div class="cols">
+    <svg viewBox="0 0 420 300" aria-label="Three currencies with directed rate edges">
+      <defs><marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+      <g fill="none" stroke="currentColor" stroke-width="2.5" marker-end="url(#a2)" style="color:var(--accent)">
+        <path d="M120,70 Q210,30 295,70"/>
+        <path d="M330,110 Q330,190 255,235"/>
+        <path d="M170,245 Q90,200 95,110"/>
+      </g>
+      <g font-size="17" fill="var(--muted)" text-anchor="middle">
+        <text x="210" y="38">0.9195</text><text x="350" y="185">164.27</text><text x="80" y="200">0.006663</text>
+      </g>
+      <g font-size="22" font-weight="600" text-anchor="middle" fill="var(--ink)">
+        <circle cx="95" cy="80" r="34" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="95" y="88">USD</text>
+        <circle cx="325" cy="80" r="34" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="325" y="88">EUR</text>
+        <circle cx="215" cy="250" r="34" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="215" y="258">JPY</text>
+      </g>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:.5em;font-size:.82em">
+      <p>Directed graph \(G=(V,E)\), \(n=|V|\).</p>
+      <p>Edge \(u\to v\) with rate \(r(u,v)>0\): one unit of \(u\) buys \(r(u,v)\) units of \(v\).</p>
+      <p>Buying and selling differ (bid and ask), so \(r(u,v)\,r(v,u)<1\) on a fair pair.</p>
+      <p class="box thm"><b>Arbitrage:</b> a cycle \(C\) with \(\displaystyle R(C)=\prod_{(u,v)\in C} r(u,v) > 1\).</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="timing">Time 2:00 · running total 3:00</p>
+    <p>Here is the model. Every currency or crypto asset is a vertex. Every price quote is a directed edge. An edge from u to v carries a number r of u v, the rate: one unit of u buys r units of v. On the left, one dollar buys about point nine two euros, one euro buys about one hundred sixty-four yen, and one yen buys a small fraction of a dollar.</p>
+    <p>Why directed? Because buying and selling are not the same price. A market maker buys from you at the bid and sells to you at the ask, and the ask is higher. So if you go from u to v and straight back, you lose a little: the product of the two rates is less than one. Real fees make each rate smaller still. In my program every edge already has the fee taken out, so the graph only contains trades you could really make.</p>
+    <p>Now follow a cycle: start at a vertex, trade along edges, and return to where you began. Your money gets multiplied by every rate on the way, so the cycle turns one unit into R of C, the product of its rates. If that product is bigger than one, you made money without taking a position. That is the definition of arbitrage we will use.</p>
+    <p>So the question is: given a graph with hundreds of vertices and thousands of edges, does it contain a cycle whose product of edge labels is greater than one? There are exponentially many cycles, so we cannot check them one by one. We need structure.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 3. LOG TRANSFORM -->
+<section>
+  <div class="eyebrow">The key step</div>
+  <h2>Products are hard, sums are easy: weigh each edge by \(-\log r\)</h2>
+  <div class="box thm" style="font-size:.85em">
+    <p><b>Theorem 1.</b> With \(w(u,v)=-\log r(u,v)\), a cycle \(C\) is an arbitrage \(\iff w(C)<0\).</p>
+  </div>
+  <div style="font-size:.85em">
+    \[ R(C)>1 \;\iff\; \log R(C) > 0 \;\iff\; \sum_{(u,v)\in C}\log r(u,v) > 0 \;\iff\; \sum_{(u,v)\in C} -\log r(u,v) < 0 \]
+  </div>
+  <p class="small muted">\(\log\) turns products into sums and is strictly increasing. The base does not matter.</p>
+  <p class="big" style="font-size:1.1em">Arbitrage \(=\) a <span class="hot">negative-weight cycle</span>.</p>
+  <aside class="notes">
+    <p class="timing">Time 2:00 · running total 5:00</p>
+    <p>Graph algorithms add weights along paths. Our question is about a product, so we change the labels.</p>
+    <p>Give each edge the weight w equals minus the log of its rate. Then theorem one says a cycle is an arbitrage exactly when its total weight is negative. The proof is the line in the middle, and it uses only two facts about the logarithm. First, the log of a product is the sum of the logs. Second, log is strictly increasing, so it preserves the inequality. The product of the rates is bigger than one, if and only if its log is bigger than zero, if and only if the sum of the logs is positive, if and only if the sum of minus the logs is negative. Every step is reversible, so this is a genuine if and only if.</p>
+    <p>Why the minus sign? Without it, we would be looking for a cycle of positive total weight, a longest-path kind of problem. With it, we are looking for a negative cycle, which is exactly the situation shortest path algorithms are designed to notice. Notice that a rate above one, like dollars to yen, gives a negative edge weight. This graph has plenty of them, and that matters later.</p>
+    <p>A sanity check. If all prices come from one consistent list, say every currency has a value in some common unit, then every rate is at most the value of u over the value of v, and around any cycle those fractions telescope to one. So a consistent market has no negative cycle. The question becomes: find a negative cycle, or prove there is none.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 4. BELLMAN-FORD -->
+<section>
+  <div class="eyebrow">The algorithm</div>
+  <h2>Bellman–Ford: relax every edge, round after round</h2>
+  <div class="cols" style="align-items:start">
+    <div style="font-size:.78em;display:flex;flex-direction:column;gap:.5em">
+      <p>Add a <b>virtual source</b> \(s\) with a 0-weight edge to every vertex. Start with \(d(v)=0\) for all \(v\).</p>
+      <p class="box"><b>Relax</b> \((u,v)\): if \(d(u)+w(u,v) &lt; d(v)\), set \(d(v)\gets d(u)+w(u,v)\) and \(\mathrm{pred}(v)\gets u\).</p>
+      <p>One <b>round</b> relaxes all \(|E|\) edges once.</p>
+    </div>
+    <pre class="box mono" style="font-size:.6em;line-height:1.45;margin:0;white-space:pre">for round k = 1, 2, …, n:
+    changed ← false
+    for each edge (u, v):
+        if d(u) + w(u,v) &lt; d(v):
+            d(v) ← d(u) + w(u,v)
+            pred(v) ← u;  changed ← true
+    if not changed: return "no arbitrage"
+    if k = n: return cycle via pred</pre>
+  </div>
+  <p class="small muted">Invariant: every value \(d(v)\) is the weight of some walk from \(s\) to \(v\).</p>
+  <aside class="notes">
+    <p class="timing">Time 2:30 · running total 7:30</p>
+    <p>Bellman–Ford computes shortest distances from one source vertex. We do not know where a profitable cycle might be, so we add an imaginary source s, with an edge of weight zero to every currency. Now every vertex is reachable from s, and every negative cycle in the market is reachable too. In the code we never build s. We just start every distance at zero, which is the weight of that first edge.</p>
+    <p>The basic operation is relaxing an edge. We have a current estimate d of v, the best walk to v found so far. If going to u first and then taking the edge from u to v is cheaper, we lower d of v to that value and record that v's best known predecessor is u. A round relaxes every edge in the graph once, in a fixed order.</p>
+    <p>Two facts make this work. The first is an invariant: every value d of v is the weight of an actual walk from s to v. That is true at the start, and a relaxation only ever extends a walk to u by one edge. The second fact is about rounds: after round k, d of v is at most the weight of the best walk to v that uses at most k market edges. You prove that by induction on k. Take the best walk with k edges, and look at its last edge, from u to v. By round k minus one, d of u was already small enough, so when round k relaxes that last edge, d of v becomes small enough too.</p>
+    <p>The program on the right runs at most n rounds. If a round changes nothing, every edge already satisfies the triangle inequality, and we can stop: no arbitrage. If round n still changes something, we follow the predecessor pointers back and read off the cycle. The next two slides prove why round n is the right place to check.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 5a. THEOREM: n-1 ROUNDS -->
+<section>
+  <div class="eyebrow">Theorem and proof · part 1</div>
+  <h2>Why \(n-1\) rounds suffice</h2>
+  <div class="box thm" style="font-size:.78em"><p><b>Lemma (handout, Problem 4a).</b> A path in \(G\) has at most \(n-1\) edges: \(k\) edges visit \(k+1\) distinct vertices, so \(k+1\le n\).</p></div>
+  <div class="box thm" style="font-size:.78em"><p><b>Theorem 2.</b> If \(G\) has no negative cycle, then after round \(n-1\), \(d(v)=\delta(v)\) (true shortest distance) for every \(v\).</p></div>
+  <div style="font-size:.72em">
+    <p><b>Proof.</b> Any walk that repeats a vertex contains a cycle; deleting it does not increase the weight (cycle weight \(\ge 0\)). So some shortest walk is a <i>path</i>, with \(\le n-1\) edges by the Lemma. After round \(n-1\): \(d(v)\le\delta(v)\) by the round lemma, and \(d(v)\ge\delta(v)\) by the invariant. \(\blacksquare\)</p>
+  </div>
+  <aside class="notes">
+    <p class="timing">Time 1:45 · running total 9:15</p>
+    <p>Here is the first half of the proof. We start from the lemma from our graph handout, problem four a. A path never repeats a vertex. A path with k edges visits k plus one different vertices, and there are only n vertices, so k is at most n minus one.</p>
+    <p>Theorem two says: if the graph has no negative cycle, then after n minus one rounds, every d value is exactly the true shortest distance from the source.</p>
+    <p>Proof. Take any walk to v. If it repeats a vertex, the part between the two visits is a cycle. Since there are no negative cycles, that cycle weighs zero or more, so cutting it out gives a walk to v that is no heavier. Keep cutting, and you reach a path. So among the shortest walks there is a path, and by the lemma it has at most n minus one edges. By the round lemma from the last slide, after round n minus one, d of v is at most that path's weight, which is the shortest distance. By the invariant, d of v is the weight of some real walk, so it cannot be smaller than the shortest distance. Both inequalities together give equality.</p>
+    <p>Notice where the hypothesis was used: only to say that deleting a cycle never hurts. That is exactly what fails when there is arbitrage.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 5b. THEOREM: ROUND n -->
+<section>
+  <div class="eyebrow">Theorem and proof · part 2</div>
+  <h2>Round \(n\) detects arbitrage</h2>
+  <div class="box thm" style="font-size:.78em"><p><b>Theorem 3.</b> Round \(n\) changes some \(d(v)\) \(\iff\) \(G\) has a negative cycle.</p></div>
+  <div style="font-size:.7em;display:flex;flex-direction:column;gap:.45em">
+    <p><b>(\(\Rightarrow\))</b> If no negative cycle: after round \(n-1\), \(d=\delta\) (Thm 2), and \(\delta(v)\le\delta(u)+w(u,v)\) for every edge. Nothing can relax in round \(n\).</p>
+    <p><b>(\(\Leftarrow\))</b> Let \(C=x_0\to\cdots\to x_k=x_0\) with \(w(C)&lt;0\). If round \(n\) changed nothing, then \(d(x_i)\le d(x_{i-1})+w(x_{i-1},x_i)\) for all \(i\). Sum over \(i\): each \(d(x_i)\) appears once per side, so \(0\le w(C)\). Contradiction. \(\blacksquare\)</p>
+    <p class="muted"><b>Recovering it:</b> walk back \(n\) steps along \(\mathrm{pred}\) from a vertex changed in round \(n\); you land on a cycle of pointers, and every such cycle is negative. Full proof in <span class="mono">docs/theory.md</span>.</p>
+  </div>
+  <aside class="notes">
+    <p class="timing">Time 1:45 · running total 11:00</p>
+    <p>Theorem three is the detection test: round n changes something if and only if there is a negative cycle.</p>
+    <p>Forward direction, by contrapositive. Suppose there is no negative cycle. Theorem two says that after round n minus one, the d values are the true distances. True distances satisfy the triangle inequality: the best route to u, plus one more edge, is a route to v. So no edge can lower anything in round n.</p>
+    <p>Backward direction, by contradiction. Take a negative cycle, x zero around to x k equals x zero. If round n changed nothing, then every edge on the cycle satisfies d of x i at most d of x i minus one plus the edge weight. Add those k inequalities. Going around a cycle, each d value appears exactly once on the left and once on the right, so they cancel, and we are left with zero at most w of C. But w of C is negative. Contradiction.</p>
+    <p>Finally, we want the cycle itself, not just a yes. From a vertex that changed in round n, follow predecessor pointers back n steps. The write-up proves that you land on a cycle of pointers, and that any cycle of pointers has negative weight, so it is a genuine arbitrage, not a rounding accident. That completes the argument. Now let me show you the algorithm running.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 6. LIVE DEMO -->
+<section>
+  <div class="eyebrow">Live demo</div>
+  <h2>Fair market, then one mispriced quote</h2>
+  <p style="font-size:.8em"><a href="../index.html" target="_blank" rel="noopener">emmanueladutwum123.github.io/fx-arbitrage-graph</a></p>
+  <iframe class="demo-frame" data-src="../index.html" title="Arbitrage demo"></iframe>
+  <ol class="small muted" style="font-size:.6em">
+    <li><b>F</b> fair market → step rounds with <b>→</b>: round 2 changes nothing, stop.</li>
+    <li><b>M</b> mispriced EUR→JPY (+0.8%) → round 5 still improves: cycle and trade.</li>
+    <li><b>L</b> live snapshot: real Kraken and Binance.US quotes, with and without fees.</li>
+  </ol>
+  <aside class="notes">
+    <p class="timing">Time 3:00 · running total 14:00</p>
+    <p>I will open the demo in a new tab. It runs offline in the browser, using the same algorithm as the Python package.</p>
+    <p>Press F for the fair market. Five currencies, every pair quoted in both directions, so twenty directed edges. The numbers in the matrix come from one price list, minus a five hundredths of a percent spread on every trade. All distances start at zero, because of the virtual source. Press the right arrow for round one. Several distances drop: going from dollars to yen, for example, has a large negative weight, because one dollar buys a hundred fifty yen. Round two. Nothing changes. By the corollary of theorem three, the algorithm can stop right here: no negative cycle, no arbitrage. This is the telescoping argument in action.</p>
+    <p>Now press M. I raise one quote, euros to yen, by eight tenths of a percent, and lower the reverse quote to match. The cell is highlighted in the matrix. Round one, two, three, four: something improves every time. That is the warning sign. A shortest path has at most four edges here, so after four rounds nothing should improve. Round five is the check. It still improves a distance, so theorem three says there is a negative cycle. The algorithm walks back the predecessor pointers and draws it in orange: Ghana cedis to euros to yen and back to cedis. Below, the trade: one million cedis comes back as about one million, six thousand, four hundred cedis, the same gain as the dollar loop on my first slide, since both use the mispriced quote and pay three spreads. The product of the rates is above one and the total weight is below zero, the same fact written two ways.</p>
+    <p>Last, press L for the live snapshot. These are the real best prices for every trading pair on Kraken and Binance dot U S, recorded in November. About seven hundred assets and three thousand edges. With each exchange's real taker fee, Bellman–Ford stops after a few rounds: nothing. Now click no fees. Suddenly there are cycles, but look at the returns and sizes: a few hundredths of a percent, a few dollars. Fees erase them, and most of them need two exchanges, which means moving coins between accounts before you could trade. So the algorithm works, and the honest question is how often real markets offer anything. That leads to the real data.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 7. REAL DATA -->
+<section id="real-data">
+  <div class="eyebrow">Real data</div>
+  <h2>REAL_DATA_TITLE</h2>
+  REAL_DATA_BODY
+  <aside class="notes">
+    <p class="timing">Time 2:00 · running total 16:00</p>
+    REAL_DATA_NOTES
+  </aside>
+</section>
+
+<!-- ============================================================ 8. DIJKSTRA + COMPLEXITY -->
+<section>
+  <div class="eyebrow">Why this algorithm</div>
+  <h2>Why not Dijkstra? And what does it cost?</h2>
+  <div class="cols" style="font-size:.74em;align-items:start">
+    <div class="box">
+      <p><b>Dijkstra</b> settles the nearest vertex forever. That needs \(w\ge 0\).</p>
+      <p class="mono" style="margin-top:.4em">s→a: 1 &nbsp; s→b: 2 &nbsp; b→a: −2</p>
+      <p>Dijkstra fixes \(d(a)=1\); the true distance is \(0\). With a negative cycle there is no shortest path at all.</p>
+    </div>
+    <div class="box">
+      <p><b>Bellman–Ford:</b> \(\le n\) rounds \(\times\) \(|E|\) edges \(= O(VE)\).</p>
+      <p style="margin-top:.4em">Complete market: \(E=n(n-1)\), so \(O(n^3)\).</p>
+      <p style="margin-top:.4em">Brute force over cycles: \(\sum_{k}\binom{n}{k}(k-1)!\), already \(1{,}112{,}073\) for \(n=10\).</p>
+    </div>
+  </div>
+  <aside class="notes">
+    <p class="timing">Time 1:00 · running total 17:00</p>
+    <p>Why not Dijkstra, which is faster? Dijkstra settles the nearest unsettled vertex and never looks at it again. That is only safe when extending a path can never make it cheaper, which needs non-negative weights. Small example: Dijkstra settles a at one, but going through b gives zero. Our graph has negative edges everywhere, and with a negative cycle a shortest path does not even exist, because every extra lap around the cycle lowers the weight again. Bellman–Ford never settles a vertex early, which is exactly why it tolerates negative edges and can detect negative cycles.</p>
+    <p>Bellman–Ford costs at most n rounds of E edges, order V times E. For a complete market of n currencies that is order n cubed. Checking every cycle instead would mean over a million cycles for just ten currencies.</p>
+  </aside>
+</section>
+
+<!-- ============================================================ 9. TAKEAWAYS -->
+<section>
+  <div class="eyebrow">Takeaways</div>
+  <h2>Arbitrage is a negative cycle, and we can prove we find it</h2>
+  <ol style="font-size:.78em">
+    <li>\(-\log\) turns “product \(>1\)” into “cycle weight \(&lt;0\)”.</li>
+    <li>Paths have \(\le n-1\) edges, so \(n-1\) rounds settle every distance, unless a negative cycle exists.</li>
+    <li>Round \(n\) is a complete test, and predecessor pointers give the trade.</li>
+    <li>On real markets, fees close almost every gap.</li>
+  </ol>
+  <p class="mono small">github.com/emmanueladutwum123/fx-arbitrage-graph</p>
+  <aside class="notes">
+    <p class="timing">Time 1:00 · running total 18:00</p>
+    <p>To sum up. A minus log transform turns a question about products into a question about sums, and arbitrage becomes a negative cycle. The fact that a path has at most n minus one edges, our problem four a, is what lets Bellman–Ford settle every distance in n minus one rounds. Round n is then a complete test, and the predecessor pointers hand us the actual trade. On real exchanges, fees close almost every gap, which is what economists would predict. Everything I showed, the code, the proofs, the recorded data and the demo, is in the repository linked here. You can run the demo yourself from the link, or install the scanner and point it at live markets. Thank you, and I am happy to take questions.</p>
+  </aside>
+</section>
+
+</div></div>
+
+<script src="vendor/reveal/reveal.js"></script>
+<script src="vendor/reveal/plugin/notes/notes.js"></script>
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/katex/contrib/auto-render.min.js"></script>
+<script>
+if (new URLSearchParams(location.search).get("theme") === "dark") document.documentElement.classList.add("dark");
+renderMathInElement(document.querySelector(".slides"), {
+  delimiters: [{left:"\\[", right:"\\]", display:true}, {left:"\\(", right:"\\)", display:false}],
+  throwOnError: false,
+});
+Reveal.initialize({
+  hash: true, slideNumber: "c/t", transition: "fade", transitionSpeed: "fast",
+  width: 1280, height: 720, margin: 0.06, center: false,
+  plugins: [RevealNotes],
+});
+Reveal.addKeyBinding({keyCode: 68, key: "D", description: "Toggle dark theme"},
+  () => document.documentElement.classList.toggle("dark"));
+</script>
+</body>
+</html>

@@ -601,7 +601,10 @@ const params = new URLSearchParams(location.search);
 const startMode = params.get("mode") || location.hash.slice(1);
 if (params.get("fees") === "zero" && SNAP) for (const v of SNAP.venues) $("fee-" + v).value = 0;
 if (startMode === "live") setMode("live");
-if (startMode === "bad") setScenario("bad");
+if (startMode === "bad" || params.get("scen") === "bad") setScenario("bad");
+const step = params.get("step");
+if (step === "end") $("runall").click();
+else if (step) for (let i = 0; i < Math.min(+step || 0, rounds.length - 1); i++) $("next").click();
 </script>
 </body>
 </html>
