@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arbitrage Cycle Finder</title>
+<meta name="description" content="Currency arbitrage as negative cycles: step through Bellman–Ford, then scan a recorded crypto order-book snapshot.">
+<style>
+/* Layout: trading-desk worksheet. Header states the theorem, then graph | algorithm side by side,
+   then the quote matrix. No web fonts or network requests: works offline from file:// too. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#14212e; --muted:#566676; --line:#d5dde5;
+  --edge:#b9c6d2; --relax:#22628a; --cycle:#b83c0a; --cycle-soft:#fdebe1; --good:#1d7a4d;
+  --f-display:"IBM Plex Sans Condensed","Avenir Next Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:17px;
+}
+:root.large{font-size:21px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f161d; --panel:#16212b; --ink:#e3eaf0; --muted:#9fb0bf; --line:#2a3946;
+  --edge:#3a4c5c; --relax:#6fb3d9; --cycle:#fb8a4c; --cycle-soft:#3a2419; --good:#4fc28a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f161d; --panel:#16212b; --ink:#e3eaf0; --muted:#9fb0bf; --line:#2a3946;
+  --edge:#3a4c5c; --relax:#6fb3d9; --cycle:#fb8a4c; --cycle-soft:#3a2419; --good:#4fc28a; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:1rem;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 48px}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:clamp(1.8rem,4vw,2.7rem);font-weight:700;line-height:1.1}
+h2{font-size:1.2rem;font-weight:600}
+.eyebrow{font-family:var(--f-mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{max-width:70ch;color:var(--muted);margin:6px 0 0}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.topbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+
+.thesis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.thesis>div{background:var(--panel);padding:14px 16px;min-width:0}
+.thesis .k{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.thesis .v{font-family:var(--f-mono);font-size:1.05rem;margin-top:4px;overflow-wrap:anywhere}
+
+.grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.spacer{flex:1}
+
+button,.seg label{font:500 .85rem var(--f-body);border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  border-radius:7px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--relax)}
+button.primary{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--relax);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{border:0;border-radius:0;background:transparent}
+.seg input:checked+label{background:var(--ink);color:var(--panel)}
+.seg input:focus-visible+label{outline:2px solid var(--relax);outline-offset:-2px}
+
+.field{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+.field input[type=number]{width:5.6em;font-family:var(--f-mono);font-size:.85rem;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+
+svg{width:100%;height:auto;display:block}
+.node circle{fill:var(--panel);stroke:var(--ink);stroke-width:1.6}
+.node.oncycle circle{fill:var(--cycle-soft);stroke:var(--cycle);stroke-width:2.4}
+.node text.code{font:600 15px var(--f-mono);fill:var(--ink);text-anchor:middle}
+.node text.dist{font:500 12px var(--f-mono);fill:var(--muted);text-anchor:middle}
+.elabel{font:500 11px var(--f-mono);fill:var(--muted);text-anchor:middle;paint-order:stroke;stroke:var(--panel);stroke-width:5px;stroke-linejoin:round}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.8rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:var(--c)}
+
+.status{font-family:var(--f-mono);font-size:.88rem;padding:10px 12px;border-radius:8px;background:var(--bg);border:1px solid var(--line)}
+.status.found{background:var(--cycle-soft);border-color:var(--cycle);color:var(--ink)}
+.status.clean{border-color:var(--good)}
+
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-size:.8rem;width:100%}
+th,td{padding:5px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-weight:500;color:var(--muted)}
+th:first-child,td:first-child{text-align:left}
+td.changed{color:var(--relax);font-weight:600}
+th.cur,td.cur{background:color-mix(in srgb,var(--relax) 10%,transparent)}
+th.check{color:var(--cycle)}
+
+.matrix td{padding:3px 4px}
+.matrix input{width:7.8em;font-family:var(--f-mono);font-size:.8rem;text-align:right;padding:4px 5px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink)}
+.matrix input.bumped{border-color:var(--cycle);background:var(--cycle-soft)}
+.matrix .diag{color:var(--muted);text-align:center}
+.matrix .w{display:block;font-size:.68rem;color:var(--muted)}
+
+.trade{display:flex;flex-direction:column;gap:6px}
+.leg{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:baseline;font-family:var(--f-mono);font-size:.88rem;padding:6px 0;border-bottom:1px dashed var(--line)}
+.leg .r{color:var(--muted)}
+.profit{font-family:var(--f-display);font-size:1.6rem;font-weight:700;color:var(--cycle)}
+.note{font-size:.85rem;color:var(--muted);max-width:75ch;margin:0}
+.steps{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-size:.92rem}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.stats>div{background:var(--panel);padding:8px 12px}
+.stats .k{font-family:var(--f-mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stats .v{font-family:var(--f-mono);font-size:1.05rem}
+.cyclist{display:flex;flex-direction:column;gap:8px}
+.cyc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;text-align:left;width:100%;padding:10px 12px;border-radius:8px}
+.cyc.sel{border-color:var(--cycle);background:var(--cycle-soft)}
+.cyc .path{font-family:var(--f-mono);font-size:.9rem;overflow-wrap:anywhere}
+.cyc .ret{font-family:var(--f-mono);font-weight:600;color:var(--cycle);text-align:right}
+.cyc .sub{grid-column:1/-1;font-size:.78rem;color:var(--muted)}
+[hidden]{display:none !important}
+kbd{font-family:var(--f-mono);font-size:.75rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 4px}
+
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.thesis{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:no-preference){.edge-anim{transition:opacity .25s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="topbar">
+      <div class="eyebrow">Math 280 · Graph theory application</div>
+      <div class="row">
+        <div class="seg" role="radiogroup" aria-label="Mode">
+          <input type="radio" name="mode" id="mode-teach" value="teach" checked><label for="mode-teach">Step through</label>
+          <input type="radio" name="mode" id="mode-live" value="live"><label for="mode-live">Live snapshot</label>
+        </div>
+        <button id="themeBtn" title="Theme (auto / light / dark)">Theme: auto</button>
+        <button id="largeBtn" aria-pressed="false" title="Larger text for projectors">Large text</button>
+      </div>
+    </div>
+    <h1>Finding currency arbitrage with Bellman–Ford</h1>
+    <p class="lede">Currencies are vertices. Each quote is a directed edge with weight −log(rate). A round trip that makes money is a cycle whose rates multiply to more than 1, which is exactly a cycle of negative total weight. Bellman–Ford finds negative cycles.</p>
+  </header>
+
+  <section class="thesis" aria-label="The key equivalence">
+    <div><div class="k">Arbitrage</div><div class="v">r₁·r₂·…·r<sub>k</sub> &gt; 1</div></div>
+    <div><div class="k">Take −log of both sides</div><div class="v">Σ −log rᵢ &lt; 0</div></div>
+    <div><div class="k">Graph statement</div><div class="v">negative-weight cycle</div></div>
+  </section>
+
+  <!-- ===================================================== TEACHING MODE -->
+  <div id="teach" class="wrap" style="gap:20px">
+  <div class="grid">
+    <section class="panel" aria-labelledby="g-title">
+      <div class="row">
+        <h2 id="g-title">Currency graph</h2>
+        <span class="spacer"></span>
+        <span class="eyebrow" id="roundLabel">Round 0 of 5</span>
+      </div>
+      <svg id="graph" viewBox="0 0 440 400" role="img" aria-label="Currency graph"></svg>
+      <div class="legend">
+        <span style="--c:var(--edge)">quote available</span>
+        <span style="--c:var(--relax)">improved this round</span>
+        <span style="--c:var(--cycle)">negative cycle</span>
+      </div>
+      <p class="note">Each vertex shows its current Bellman–Ford distance. Every vertex starts at 0, as if a virtual source pointed at all of them with weight 0.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="a-title">
+      <h2 id="a-title">Run the algorithm</h2>
+      <div class="row">
+        <div class="seg" role="radiogroup" aria-label="Market scenario">
+          <input type="radio" name="scen" id="scen-fair" value="fair" checked><label for="scen-fair">Fair market</label>
+          <input type="radio" name="scen" id="scen-bad" value="bad"><label for="scen-bad">Mispriced quote</label>
+          <input type="radio" name="scen" id="scen-custom" value="custom"><label for="scen-custom">Custom</label>
+        </div>
+      </div>
+      <div class="row">
+        <label class="field" for="spread">Spread per trade (%) <input id="spread" type="number" step="0.01" min="0" max="2" value="0.05"></label>
+        <label class="field" for="bump">EUR/JPY mispricing (%) <input id="bump" type="number" step="0.1" min="-5" max="5" value="0.8"></label>
+      </div>
+      <div class="row">
+        <button class="primary" id="next">Next round</button>
+        <button id="runall">Run to the end</button>
+        <button id="reset">Reset</button>
+      </div>
+      <div class="status" id="status" aria-live="polite"></div>
+      <div class="tablewrap"><table id="dist"></table></div>
+      <ol class="steps">
+        <li>Rounds 1 to n−1: relax every edge. If u→v gives v a smaller distance, update it.</li>
+        <li>Why n−1 rounds is enough: a shortest path never repeats a currency, so it has at most n−1 edges (graph handout, Problem 4a).</li>
+        <li>Round n is the check. If any distance still drops, no shortest path exists, so there is a negative cycle. Follow the predecessor links back to recover it.</li>
+      </ol>
+      <p class="note">Keys: <kbd>→</kbd>/<kbd>Space</kbd> next round · <kbd>E</kbd> run to end · <kbd>R</kbd> reset · <kbd>F</kbd> fair · <kbd>M</kbd> mispriced · <kbd>L</kbd> live snapshot</p>
+    </section>
+  </div>
+
+  <section class="panel" id="tradePanel" aria-labelledby="t-title" hidden>
+    <h2 id="t-title">The trade the cycle describes</h2>
+    <div class="trade" id="trade"></div>
+    <div class="row"><span class="profit mono" id="profit"></span></div>
+    <p class="note" id="tradeNote"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="m-title">
+    <div class="row">
+      <h2 id="m-title">Quote matrix</h2>
+      <span class="spacer"></span>
+      <span class="eyebrow">row → column · edit any cell</span>
+    </div>
+    <div class="tablewrap"><table class="matrix" id="matrix"></table></div>
+    <p class="note">Each cell is how many units of the column currency you get for 1 unit of the row currency; the small number underneath is the edge weight −log(rate). Rates are sample numbers for the demo, not live quotes. In the fair market every round trip loses the spread, so there is no negative cycle. Editing a cell switches to the Custom scenario.</p>
+  </section>
+  </div>
+
+  <!-- ===================================================== LIVE SNAPSHOT MODE -->
+  <div id="live" class="wrap" style="gap:20px" hidden>
+    <section class="panel" aria-labelledby="s-title">
+      <div class="row">
+        <h2 id="s-title">Recorded crypto order-book snapshot</h2>
+        <span class="spacer"></span>
+        <span class="eyebrow" id="snapWhen"></span>
+      </div>
+      <p class="note" id="snapNote">Best bid and ask for every trading pair, saved from the exchanges' public REST APIs. The page makes no network calls: everything below is computed in your browser from that file.</p>
+      <div class="row" id="venueRow"></div>
+      <div class="row">
+        <button id="feesTaker">Entry-tier taker fees</button>
+        <button id="feesZero">No fees</button>
+        <span class="note">Fees from each exchange's own fee page, checked 2026-11-21: Kraken Pro 0.80% taker, Binance.US 0.02% taker.</span>
+      </div>
+      <div class="stats" id="liveStats"></div>
+      <div class="status" id="liveStatus" aria-live="polite"></div>
+    </section>
+
+    <div class="grid">
+      <section class="panel" aria-labelledby="lc-title">
+        <h2 id="lc-title">Cycle</h2>
+        <svg id="liveGraph" viewBox="0 0 440 400" role="img" aria-label="Selected arbitrage cycle"></svg>
+        <div class="trade" id="liveLegs"></div>
+        <p class="note" id="liveNote"></p>
+      </section>
+      <section class="panel" aria-labelledby="ll-title">
+        <h2 id="ll-title">Profitable cycles found</h2>
+        <div class="cyclist" id="cycList"></div>
+        <p class="note">Search: Bellman–Ford from a virtual source with early exit and a predecessor-cycle check. After each cycle is found, its tightest leg is removed and the search runs again (up to 8 cycles). Symbols whose USD price differs by more than 10% between venues are kept apart (same ticker, different token).</p>
+        <p class="note">What the numbers leave out: the time it takes to send orders (prices move first), moving coins between exchanges for cross-venue cycles, minimum order sizes, and anything beyond the best price level. Real opportunities are rarer and smaller than this.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script src="fxarb.js"></script>
+<script src="data/snapshot.js"></script>
+<script>
+"use strict";
+const $ = id => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+const el = (t, a = {}) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+// ---------------------------------------------------------------- theme / large text
+const THEMES = ["auto", "light", "dark"];
+function applyTheme(t){
+  if (t === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.setAttribute("data-theme", t);
+  $("themeBtn").textContent = "Theme: " + t;
+  try { localStorage.setItem("fxarb-theme", t); } catch (e) {}
+}
+$("themeBtn").onclick = () => {
+  let cur = "auto"; try { cur = localStorage.getItem("fxarb-theme") || "auto"; } catch (e) {}
+  applyTheme(THEMES[(THEMES.indexOf(cur) + 1) % 3]);
+};
+$("largeBtn").onclick = () => {
+  const on = document.documentElement.classList.toggle("large");
+  $("largeBtn").setAttribute("aria-pressed", String(on));
+  try { localStorage.setItem("fxarb-large", on ? "1" : "0"); } catch (e) {}
+};
+try {
+  applyTheme(localStorage.getItem("fxarb-theme") || "auto");
+  if (localStorage.getItem("fxarb-large") === "1") $("largeBtn").click();
+} catch (e) {}
+
+function markers(g){
+  const css = getComputedStyle(document.documentElement);
+  const defs = el("defs");
+  for (const [id, col] of [["ah-relax", css.getPropertyValue("--relax")], ["ah-cycle", css.getPropertyValue("--cycle")]]){
+    const m = el("marker", {id: id + "-" + g.id, viewBox:"0 0 10 10", refX:"8", refY:"5", markerWidth:"7", markerHeight:"7", orient:"auto-start-reverse"});
+    m.append(el("path", {d:"M0,0 L10,5 L0,10 z", fill:col.trim()}));
+    defs.append(m);
+  }
+  g.append(defs);
+}
+function arrowPath(pos, u, v, bend, r = 27){
+  const [x1, y1] = pos[u], [x2, y2] = pos[v];
+  const dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+  const sx = x1 + ux * r, sy = y1 + uy * r, ex = x2 - ux * (r + 4), ey = y2 - uy * (r + 4);
+  const mx = (sx + ex) / 2 - uy * bend, my = (sy + ey) / 2 + ux * bend;
+  return {d:`M${sx},${sy} Q${mx},${my} ${ex},${ey}`, mx, my};
+}
+function circlePos(names, R = 150, CX = 220, CY = 200){
+  return Object.fromEntries(names.map((c, i) => {
+    const a = -Math.PI / 2 + 2 * Math.PI * i / names.length;
+    return [c, [CX + R * Math.cos(a), CY + R * Math.sin(a)]];
+  }));
+}
+
+// ================================================================ TEACHING MODE
+const CUR = ["USD","EUR","GBP","JPY","GHS"];
+const QUOTE = {USD:1, EUR:0.92, GBP:0.79, JPY:150, GHS:12};   // sample units per 1 USD
+const n = CUR.length;
+let rates = {}, rounds = [], shown = 0, scenario = "fair";
+const fmtRate = r => r >= 100 ? r.toFixed(3) : r >= 1 ? r.toFixed(5) : r.toPrecision(4);
+const fmtD = d => (Math.abs(d) < 5e-13 ? 0 : d).toFixed(4);
+const pos = circlePos(CUR);
+
+function marketRates(){
+  const s = (parseFloat($("spread").value) || 0) / 100;
+  const r = {};
+  for (const a of CUR){ r[a] = {}; for (const b of CUR) if (a !== b) r[a][b] = QUOTE[b] / QUOTE[a] * (1 - s); }
+  if (scenario === "bad"){
+    const k = 1 + (parseFloat($("bump").value) || 0) / 100;
+    r.EUR.JPY *= k; r.JPY.EUR /= k;
+  }
+  return r;
+}
+function edges(){
+  const E = [];
+  for (const u of CUR) for (const v of CUR) if (u !== v) E.push([u, v, -Math.log(rates[u][v])]);
+  return E;
+}
+// Precompute every round so the stepper can move forward without recomputing.
+function solve(){
+  const E = edges(), EPS = 1e-12;
+  const dist = Object.fromEntries(CUR.map(c => [c, 0]));
+  const pred = Object.fromEntries(CUR.map(c => [c, null]));
+  rounds = [{dist:{...dist}, changed:new Set(), relaxed:[], cycle:null, done:false}];
+  for (let k = 1; k <= n - 1; k++){
+    const changed = new Set(), relaxed = [];
+    for (const [u, v, w] of E){
+      if (dist[u] + w < dist[v] - EPS){ dist[v] = dist[u] + w; pred[v] = u; changed.add(v); relaxed.push([u, v]); }
+    }
+    rounds.push({dist:{...dist}, changed, relaxed, cycle:null, check:false});
+    if (!changed.size){ rounds[rounds.length - 1].clean = true; return; }
+  }
+  // Round n: the check.
+  for (const [u, v, w] of E){
+    if (dist[u] + w < dist[v] - EPS){
+      dist[v] = dist[u] + w; pred[v] = u;
+      let x = v; for (let i = 0; i < n; i++) x = pred[x];
+      const cyc = [x]; let y = pred[x];
+      while (y !== x){ cyc.push(y); y = pred[y]; }
+      cyc.push(x); cyc.reverse();
+      rounds.push({dist:{...dist}, changed:new Set([v]), relaxed:[[u, v]], cycle:cyc, check:true});
+      return;
+    }
+  }
+  rounds.push({dist:{...dist}, changed:new Set(), relaxed:[], cycle:null, check:true, clean:true});
+}
+
+function draw(){
+  const g = $("graph"); g.replaceChildren(); markers(g);
+  const rd = rounds[shown];
+  for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++){
+    const [x1, y1] = pos[CUR[i]], [x2, y2] = pos[CUR[j]];
+    g.append(el("line", {x1, y1, x2, y2, stroke:"var(--edge)", "stroke-width":"1.2"}));
+  }
+  const cycEdges = new Set();
+  if (rd.cycle) for (let i = 0; i + 1 < rd.cycle.length; i++) cycEdges.add(rd.cycle[i] + ">" + rd.cycle[i + 1]);
+  for (const [u, v] of rd.relaxed){
+    if (cycEdges.has(u + ">" + v)) continue;
+    g.append(el("path", {d:arrowPath(pos, u, v, 18).d, fill:"none", stroke:"var(--relax)", "stroke-width":"2", "marker-end":"url(#ah-relax-graph)", class:"edge-anim"}));
+  }
+  if (rd.cycle){
+    for (let i = 0; i + 1 < rd.cycle.length; i++){
+      const u = rd.cycle[i], v = rd.cycle[i + 1];
+      g.append(el("path", {d:arrowPath(pos, u, v, 18).d, fill:"none", stroke:"var(--cycle)", "stroke-width":"3.4", "marker-end":"url(#ah-cycle-graph)"}));
+    }
+  }
+  const onCyc = new Set(rd.cycle || []);
+  for (const c of CUR){
+    const [x, y] = pos[c];
+    const gN = el("g", {class:"node" + (onCyc.has(c) ? " oncycle" : "")});
+    gN.append(el("circle", {cx:x, cy:y, r:26}));
+    const t = el("text", {x, y:y + 5, class:"code"}); t.textContent = c; gN.append(t);
+    const below = y > 200 ? y + 44 : y - 34;
+    const d = el("text", {x, y:below, class:"dist"}); d.textContent = "d = " + fmtD(rd.dist[c]); gN.append(d);
+    g.append(gN);
+  }
+}
+function renderTable(){
+  const t = $("dist"); t.replaceChildren();
+  const head = document.createElement("tr");
+  head.append(Object.assign(document.createElement("th"), {textContent:"vertex"}));
+  for (let k = 0; k <= shown; k++){
+    const th = document.createElement("th");
+    const isCheck = rounds[k].check;
+    th.textContent = k === 0 ? "start" : isCheck ? `check (${n})` : `round ${k}`;
+    if (isCheck) th.className = "check";
+    if (k === shown) th.classList.add("cur");
+    head.append(th);
+  }
+  t.append(head);
+  for (const c of CUR){
+    const tr = document.createElement("tr");
+    tr.append(Object.assign(document.createElement("td"), {textContent:c}));
+    for (let k = 0; k <= shown; k++){
+      const td = document.createElement("td");
+      td.textContent = fmtD(rounds[k].dist[c]);
+      if (rounds[k].changed.has(c)) td.classList.add("changed");
+      if (k === shown) td.classList.add("cur");
+      tr.append(td);
+    }
+    t.append(tr);
+  }
+}
+function renderStatus(){
+  const rd = rounds[shown], last = shown === rounds.length - 1;
+  const s = $("status"); s.className = "status";
+  $("roundLabel").textContent = rd.check ? `Round ${n}: check` : `Round ${shown} of ${n - 1} (+ check)`;
+  if (shown === 0) s.textContent = "All distances start at 0. Press Next round to relax every edge once.";
+  else if (rd.cycle){ s.className = "status found"; s.textContent = `Round ${n} still improved ${[...rd.changed][0]}, so a negative cycle exists: ${rd.cycle.join(" → ")}.`; }
+  else if (rd.clean && rd.check){ s.className = "status clean"; s.textContent = `Round ${n} changed nothing. No negative cycle, so no arbitrage.`; }
+  else if (rd.clean){ s.className = "status clean"; s.textContent = `Round ${shown} changed nothing, so distances are final. No negative cycle, so no arbitrage.`; }
+  else s.textContent = `Round ${shown}: ${rd.relaxed.length} edge(s) improved a distance.`;
+  $("next").disabled = last; $("runall").disabled = last;
+}
+function renderTrade(){
+  const rd = rounds[shown], p = $("tradePanel");
+  if (!rd.cycle){ p.hidden = true; return; }
+  p.hidden = false;
+  const box = $("trade"); box.replaceChildren();
+  const start = rd.cycle[0]; let amt = 1_000_000, prod = 1, wsum = 0;
+  const f = x => x.toLocaleString("en-US", {maximumFractionDigits:2, minimumFractionDigits:2});
+  for (let i = 0; i + 1 < rd.cycle.length; i++){
+    const u = rd.cycle[i], v = rd.cycle[i + 1], r = rates[u][v];
+    const next = amt * r; prod *= r; wsum += -Math.log(r);
+    const row = document.createElement("div"); row.className = "leg";
+    row.innerHTML = `<span>${u} → ${v}</span><span class="r">× ${fmtRate(r)}   (w = ${(-Math.log(r)).toFixed(5)})</span><span>${f(next)} ${v}</span>`;
+    box.append(row); amt = next;
+  }
+  $("profit").textContent = `+${f(amt - 1_000_000)} ${start} on 1,000,000 ${start}`;
+  $("tradeNote").textContent = `Product of rates = ${prod.toFixed(6)} > 1, and the cycle's total weight = ${wsum.toFixed(6)} < 0. Same fact, two ways of writing it.`;
+}
+function render(){ draw(); renderTable(); renderStatus(); renderTrade(); }
+function renderMatrix(){
+  const m = $("matrix"); m.replaceChildren();
+  const s = (parseFloat($("spread").value) || 0) / 100;
+  const fair = (a, b) => QUOTE[b] / QUOTE[a] * (1 - s);
+  const head = document.createElement("tr"); head.append(document.createElement("th"));
+  for (const c of CUR) head.append(Object.assign(document.createElement("th"), {textContent:c}));
+  m.append(head);
+  for (const a of CUR){
+    const tr = document.createElement("tr");
+    tr.append(Object.assign(document.createElement("th"), {textContent:a}));
+    for (const b of CUR){
+      const td = document.createElement("td");
+      if (a === b){ td.className = "diag"; td.textContent = "—"; }
+      else {
+        const inp = document.createElement("input");
+        inp.type = "number"; inp.step = "any"; inp.id = `r-${a}-${b}`; inp.setAttribute("aria-label", `${a} to ${b} rate`);
+        inp.value = fmtRate(rates[a][b]);
+        if (Math.abs(rates[a][b] / fair(a, b) - 1) > 1e-9) inp.classList.add("bumped");
+        inp.addEventListener("change", () => {
+          const v = parseFloat(inp.value);
+          if (!(v > 0)){ inp.value = fmtRate(rates[a][b]); return; }
+          rates[a][b] = v; scenario = "custom"; $("scen-custom").checked = true;
+          restart(false);
+        });
+        const w = document.createElement("span"); w.className = "w"; w.textContent = "w " + (-Math.log(rates[a][b])).toFixed(4);
+        td.append(inp, w);
+      }
+      tr.append(td);
+    }
+    m.append(tr);
+  }
+}
+function restart(rebuildRates = true){
+  if (rebuildRates && scenario !== "custom") rates = marketRates();
+  solve(); shown = 0; renderMatrix(); render();
+}
+function setScenario(s){ scenario = s; $("scen-" + s).checked = true; restart(s !== "custom"); }
+$("next").onclick = () => { if (shown < rounds.length - 1){ shown++; render(); } };
+$("runall").onclick = () => { shown = rounds.length - 1; render(); };
+$("reset").onclick = () => { shown = 0; render(); };
+document.querySelectorAll('input[name="scen"]').forEach(r => r.addEventListener("change", () => setScenario(r.value)));
+$("spread").addEventListener("change", () => { if (scenario === "custom") setScenario("bad"); else restart(true); });
+$("bump").addEventListener("change", () => setScenario("bad"));
+
+// ================================================================ LIVE SNAPSHOT MODE
+const SNAP = window.FXARB_SNAPSHOT || null;
+const VENUE_NAMES = {kraken:"Kraken", binanceus:"Binance.US"};
+const TAKER = {kraken:0.008, binanceus:0.0002};
+let liveCycles = [], liveSel = 0, liveSplit = [];
+const money = x => !isFinite(x) ? "unlimited" : "$" + x.toLocaleString("en-US", {maximumFractionDigits: x < 1 ? 4 : 2, minimumFractionDigits:2});
+const pct = (x, d = 3) => (x >= 0 ? "+" : "") + (x * 100).toFixed(d) + "%";
+
+function liveSetup(){
+  if (!SNAP){ $("liveStatus").textContent = "No snapshot file found (data/snapshot.js)."; return; }
+  $("snapWhen").textContent = "taken " + SNAP.fetched_at.replace("T", " ").replace("Z", " UTC");
+  const row = $("venueRow");
+  for (const v of SNAP.venues){
+    const box = document.createElement("label"); box.className = "field";
+    box.innerHTML = `<input type="checkbox" id="use-${v}" checked> ${VENUE_NAMES[v] || v} fee (%) <input type="number" id="fee-${v}" step="0.01" min="0" max="5" value="${(TAKER[v] ?? 0) * 100}">`;
+    row.append(box);
+  }
+  row.addEventListener("change", liveRun);
+  $("feesTaker").onclick = () => { for (const v of SNAP.venues) $("fee-" + v).value = (TAKER[v] ?? 0) * 100; liveRun(); };
+  $("feesZero").onclick = () => { for (const v of SNAP.venues) $("fee-" + v).value = 0; liveRun(); };
+}
+
+function liveRun(){
+  if (!SNAP) return;
+  const fees = {};
+  for (const v of SNAP.venues) if ($("use-" + v).checked) fees[v] = Math.max(0, parseFloat($("fee-" + v).value) || 0) / 100;
+  const all = FXARB.quotesFromSnapshot(SNAP).filter(q => q.venue in fees);
+  const {quotes, split} = FXARB.reconcile(all, 0.10);
+  liveSplit = split;
+  const usd = FXARB.usdValues(quotes);
+  const t0 = performance.now();
+  const g = FXARB.buildGraph(quotes, fees);
+  const res = FXARB.findCycles(g, 8);
+  const ms = performance.now() - t0;
+  liveCycles = res.cycles.map(c => ({...c, usd: usd.get(c.assets[0]), fees}));
+  liveSel = 0;
+  const stats = [
+    ["pairs", all.length.toLocaleString()], ["assets (V)", g.assets.length.toLocaleString()],
+    ["edges (E)", g.edges.length.toLocaleString()], ["first search", `${res.rounds} round${res.rounds === 1 ? "" : "s"}`],
+    ["edge scans", res.scans.toLocaleString()], ["time", ms.toFixed(1) + " ms"],
+  ];
+  $("liveStats").innerHTML = stats.map(([k, v]) => `<div><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+  const s = $("liveStatus");
+  const feeTxt = Object.entries(fees).map(([v, f]) => `${VENUE_NAMES[v] || v} ${(f * 100).toFixed(2)}%`).join(", ") || "no venue selected";
+  if (!Object.keys(fees).length){ s.className = "status"; s.textContent = "Select at least one venue."; }
+  else if (!liveCycles.length){ s.className = "status clean"; s.textContent = `No negative cycle with fees ${feeTxt}. Bellman–Ford stopped after ${res.rounds} round(s) because nothing changed. No arbitrage in this snapshot.`; }
+  else { s.className = "status found"; s.textContent = `${liveCycles.length} profitable cycle(s) with fees ${feeTxt}. Best net return ${pct(Math.max(...liveCycles.map(c => c.net)))}.`; }
+  renderCycList(); renderLiveCycle();
+}
+
+function renderCycList(){
+  const box = $("cycList"); box.replaceChildren();
+  if (!liveCycles.length){
+    const p = document.createElement("p"); p.className = "note";
+    p.textContent = "Nothing to show. Try “No fees” to see the price gaps that fees wipe out.";
+    box.append(p); return;
+  }
+  liveCycles.forEach((c, i) => {
+    const b = document.createElement("button"); b.className = "cyc" + (i === liveSel ? " sel" : "");
+    const size = c.maxSize * (c.usd ?? NaN);
+    b.innerHTML = `<span class="path">${c.assets.join(" → ")}</span><span class="ret">${pct(c.net)}</span>
+      <span class="sub">${c.legs.length} legs · max size ≈ ${money(size)} · max profit ≈ ${money(size * c.net)} · venues: ${[...new Set(c.legs.map(l => VENUE_NAMES[l.venue] || l.venue))].join(", ")}</span>`;
+    b.onclick = () => { liveSel = i; renderCycList(); renderLiveCycle(); };
+    box.append(b);
+  });
+}
+
+function renderLiveCycle(){
+  const g = $("liveGraph"); g.replaceChildren(); markers(g);
+  const legsBox = $("liveLegs"); legsBox.replaceChildren();
+  const c = liveCycles[liveSel];
+  if (!c){
+    const t = el("text", {x:220, y:200, class:"elabel", style:"font-size:15px"}); t.textContent = liveCycles.length ? "select a cycle" : "no negative cycle"; g.append(t);
+    $("liveNote").textContent = ""; return;
+  }
+  const names = c.assets.slice(0, -1), p = circlePos(names, names.length <= 2 ? 110 : 140);
+  for (let i = 0; i + 1 < c.assets.length; i++){
+    const u = c.assets[i], v = c.assets[i + 1], a = arrowPath(p, u, v, names.length <= 2 ? 40 : 22, 34);
+    g.append(el("path", {d:a.d, fill:"none", stroke:"var(--cycle)", "stroke-width":"3", "marker-end":"url(#ah-cycle-liveGraph)"}));
+    const t = el("text", {x:a.mx, y:a.my, class:"elabel", dy:"-4"}); t.textContent = "×" + c.legs[i].rate.toPrecision(5); g.append(t);
+  }
+  for (const nm of names){
+    const [x, y] = p[nm], gN = el("g", {class:"node oncycle"});
+    gN.append(el("circle", {cx:x, cy:y, r:33}));
+    const t = el("text", {x, y:y + 5, class:"code", style:`font-size:${nm.length > 5 ? 11 : 14}px`}); t.textContent = nm; gN.append(t);
+    g.append(gN);
+  }
+  let amt = 1;
+  c.legs.forEach((e, i) => {
+    const row = document.createElement("div"); row.className = "leg";
+    const capUnits = c.assets[i];
+    row.innerHTML = `<span>${c.assets[i]} → ${c.assets[i + 1]}</span><span class="r">${e.side} ${e.pair} @ ${VENUE_NAMES[e.venue] || e.venue} × ${e.rate.toPrecision(7)}${i === c.bottleneck ? "  ← tightest leg" : ""}</span><span>depth ${isFinite(e.capacity) ? e.capacity.toPrecision(4) : "∞"} ${capUnits}</span>`;
+    legsBox.append(row); amt *= e.rate;
+  });
+  const gross = c.legs.reduce((acc, e) => acc * e.rate / (1 - (c.fees[e.venue] || 0)), 1);
+  const breakEven = 1 - Math.pow(gross, -1 / c.legs.length);
+  $("liveNote").textContent = `Product of after-fee rates = ${c.product.toFixed(6)} > 1 (total weight ${c.weight.toFixed(6)} < 0). Before fees the product is ${gross.toFixed(6)}, so a fee above ${(breakEven * 100).toFixed(3)}% per leg would erase it. Size is limited by the best price level only.`;
+}
+
+// ---------------------------------------------------------------- mode + keys
+function setMode(m){
+  $("mode-" + m).checked = true;
+  $("teach").hidden = m !== "teach"; $("live").hidden = m !== "live";
+  if (m === "live" && !liveRun.done){ liveRun.done = true; liveRun(); }
+}
+document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener("change", () => setMode(r.value)));
+document.addEventListener("keydown", e => {
+  if (e.target.matches("input") || e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key.toLowerCase(), teach = !$("teach").hidden;
+  if (teach && (k === "arrowright" || k === " ")){ e.preventDefault(); $("next").click(); }
+  else if (teach && k === "e") $("runall").click();
+  else if (teach && k === "r") $("reset").click();
+  else if (k === "f"){ setMode("teach"); setScenario("fair"); }
+  else if (k === "m"){ setMode("teach"); setScenario("bad"); }
+  else if (k === "l") setMode("live");
+  else if (k === "t") setMode("teach");
+});
+const redraw = () => { draw(); renderLiveCycle(); };
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redraw);
+new MutationObserver(redraw).observe(document.documentElement, {attributes:true, attributeFilter:["data-theme"]});
+
+liveSetup();
+rates = marketRates();
+restart(false);
+const params = new URLSearchParams(location.search);
+const startMode = params.get("mode") || location.hash.slice(1);
+if (params.get("fees") === "zero" && SNAP) for (const v of SNAP.venues) $("fee-" + v).value = 0;
+if (startMode === "live") setMode("live");
+if (startMode === "bad") setScenario("bad");
+</script>
+</body>
+</html>
