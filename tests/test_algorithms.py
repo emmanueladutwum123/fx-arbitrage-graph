@@ -77,7 +77,11 @@ def test_bf_and_spfa_agree_with_brute_force(g: tuple[int, list[tuple[int, int, f
     # keep away from the eps boundary, where "negative" depends on float rounding
     assume(not (-1e-9 < best_w < 1e-9))
     expected = best_w < 0
-    for algo in (bellman_ford, spfa):
+
+    def bf_check(n: int, e: list[tuple[int, int, float]]):  # type: ignore[no-untyped-def]
+        return bellman_ford(n, e, pred_check=True)
+
+    for algo in (bellman_ford, spfa, bf_check):
         res = algo(n, edges)
         assert res.found == expected, f"{algo.__name__} disagrees with brute force"
         if res.cycle is not None:

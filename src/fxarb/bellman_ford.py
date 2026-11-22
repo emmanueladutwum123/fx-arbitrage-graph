@@ -93,12 +93,18 @@ def find_pred_cycle(pred: Sequence[int]) -> list[int] | None:
     return None
 
 
-def bellman_ford(n: int, edges: WeightedEdges, eps: float = DEFAULT_EPS) -> SearchResult:
+def bellman_ford(
+    n: int, edges: WeightedEdges, eps: float = DEFAULT_EPS, pred_check: bool = False
+) -> SearchResult:
     """Classic Bellman–Ford with early exit.
 
     Rounds 1..n-1 relax every edge. If a round changes nothing, distances are final and
     there is no negative cycle. If round n still improves some vertex v, a negative
     cycle exists and v's predecessor chain leads into it.
+
+    With ``pred_check=True``, after every round we also look for a cycle in the
+    predecessor graph (O(n) per round, cheaper than the O(E) round itself). Any such
+    cycle is negative (theory.md, Lemma 4), so we may stop before round n.
     """
     dist = [0.0] * n
     pred = [-1] * n
@@ -118,6 +124,10 @@ def bellman_ford(n: int, edges: WeightedEdges, eps: float = DEFAULT_EPS) -> Sear
         if rnd == n:
             cyc = cycle_from_pred(pred, last_changed, n)
             return SearchResult(cyc, rnd, relaxations, scans)
+        if pred_check:
+            early = find_pred_cycle(pred)
+            if early is not None:
+                return SearchResult(early, rnd, relaxations, scans)
     # n == 0
     return SearchResult(None, 0, relaxations, scans)
 
