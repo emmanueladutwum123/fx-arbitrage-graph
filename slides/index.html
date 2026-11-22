@@ -60,7 +60,7 @@ html.print-pdf .pdf-only{display:block}
 <section>
   <div class="eyebrow">Math 280 · Discrete Mathematics</div>
   <h1>Can you make money just by exchanging currencies in a circle?</h1>
-  <div class="box mono" style="font-size:.8em">
+  <div class="box mono" style="font-size:.95em">
     $1,000,000 → €919,540 → ¥151,048,838 → <span class="hot">$1,006,489</span>
   </div>
   <p class="muted small">Sample rates from the demo, 0.05% cost per trade and one mispriced EUR→JPY quote.</p>
@@ -84,7 +84,7 @@ html.print-pdf .pdf-only{display:block}
         <path d="M170,245 Q90,200 95,110"/>
       </g>
       <g font-size="17" fill="var(--muted)" text-anchor="middle">
-        <text x="210" y="38">0.9195</text><text x="350" y="185">164.27</text><text x="80" y="200">0.006663</text>
+        <text x="210" y="38">0.9195</text><text x="350" y="185">164.27</text><text x="52" y="190">0.006663</text>
       </g>
       <g font-size="22" font-weight="600" text-anchor="middle" fill="var(--ink)">
         <circle cx="95" cy="80" r="34" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/><text x="95" y="88">USD</text>
@@ -96,7 +96,7 @@ html.print-pdf .pdf-only{display:block}
       <p>Directed graph \(G=(V,E)\), \(n=|V|\).</p>
       <p>Edge \(u\to v\) with rate \(r(u,v)>0\): one unit of \(u\) buys \(r(u,v)\) units of \(v\).</p>
       <p>Buying and selling differ (bid and ask), so \(r(u,v)\,r(v,u)<1\) on a fair pair.</p>
-      <p class="box thm"><b>Arbitrage:</b> a cycle \(C\) with \(\displaystyle R(C)=\prod_{(u,v)\in C} r(u,v) > 1\).</p>
+      <p class="box thm"><b>Arbitrage:</b> a cycle \(C\) whose product of rates \(R(C)=\prod_{C} r(u,v)\) is \(>1\).</p>
     </div>
   </div>
   <aside class="notes">
@@ -200,7 +200,7 @@ html.print-pdf .pdf-only{display:block}
   <div class="eyebrow">Live demo</div>
   <h2>Fair market, then one mispriced quote</h2>
   <p style="font-size:.8em"><a href="../index.html" target="_blank" rel="noopener">emmanueladutwum123.github.io/fx-arbitrage-graph</a></p>
-  <iframe class="demo-frame" data-src="../index.html" title="Arbitrage demo"></iframe>
+  <a href="../index.html" target="_blank" rel="noopener"><img src="img/demo.png" alt="The demo after round 5 of the mispriced market: the negative cycle GHS to EUR to JPY to GHS is highlighted" style="width:100%;max-height:11.5em;object-fit:contain;border:2px solid var(--line);border-radius:12px"></a>
   <ol class="small muted" style="font-size:.6em">
     <li><b>F</b> fair market → step rounds with <b>→</b>: round 2 changes nothing, stop.</li>
     <li><b>M</b> mispriced EUR→JPY (+0.8%) → round 5 still improves: cycle and trade.</li>
