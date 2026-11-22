@@ -3,7 +3,7 @@ name: Pages
 on:
   push:
     branches: [main]
-    paths: ["web/**", "slides/**", ".github/workflows/pages.yml"]
+    paths: ["web/**", "slides/**", "docs/video/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -28,6 +28,7 @@ jobs:
           mkdir -p _site
           cp -r web/. _site/
           if [ -d slides ]; then mkdir -p _site/slides && cp -r slides/. _site/slides/; fi
+          mkdir -p _site/video && cp docs/video/*.mp4 _site/video/
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

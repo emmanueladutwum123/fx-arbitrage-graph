@@ -602,9 +602,19 @@ const startMode = params.get("mode") || location.hash.slice(1);
 if (params.get("fees") === "zero" && SNAP) for (const v of SNAP.venues) $("fee-" + v).value = 0;
 if (startMode === "live") setMode("live");
 if (startMode === "bad" || params.get("scen") === "bad") setScenario("bad");
+if (params.get("large") === "1" && !document.documentElement.classList.contains("large")) $("largeBtn").click();
+if (params.get("theme")) applyTheme(params.get("theme"));
 const step = params.get("step");
 if (step === "end") $("runall").click();
 else if (step) for (let i = 0; i < Math.min(+step || 0, rounds.length - 1); i++) $("next").click();
+const cycParam = +params.get("cyc");
+if (cycParam && liveCycles[cycParam]){ liveSel = cycParam; renderCycList(); renderLiveCycle(); }
+// focus=trade | live: hide the page header so that part sits at the top (used for videos/screenshots)
+const focus = params.get("focus");
+if (focus){
+  document.querySelector("header").hidden = true; document.querySelector(".thesis").hidden = true;
+  if (focus === "trade") document.querySelector("#teach > .grid").hidden = true;
+}
 </script>
 </body>
 </html>
